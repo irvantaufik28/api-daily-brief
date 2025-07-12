@@ -1,0 +1,43 @@
+{
+  "name": "daily-brief-api",
+  "version": "1.0.0",
+  "description": "api daily breif management daily report",
+  "main": "main.js",
+  "scripts": {
+    "start": "node dist/src/main.js",
+    "dev": "nodemon src/main.ts",
+    "ts.check": "tsc --project tsconfig.json",
+    "postinstall": "prisma generate",
+    "build-prisma": "prisma generate",
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "build": "rimraf dist && tsc"
+  },
+  "pre-commit": [
+    "ts.check",
+    "build",
+    "add-build"
+  ],
+  "prisma": {
+    "seed": "ts-node prisma/seeders/seed.ts"
+  },
+  "author": "irvan",
+  "license": "MIT",
+  "dependencies": {
+    "@prisma/client": "^6.11.1",
+    "cors": "^2.8.5",
+    "dotenv": "^17.2.0",
+    "express": "^5.1.0",
+    "pg": "^8.16.3",
+    "pg-hstore": "^2.3.4",
+    "winston": "^3.17.0"
+  },
+  "devDependencies": {
+    "@types/cors": "^2.8.19",
+    "@types/express": "^5.0.3",
+    "@types/node": "^24.0.13",
+    "nodemon": "^3.1.10",
+    "prisma": "^6.11.1",
+    "ts-node": "^10.9.2",
+    "typescript": "^5.8.3"
+  }
+}

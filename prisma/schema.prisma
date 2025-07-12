@@ -1,0 +1,114 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id        Int      @id @default(autoincrement())
+  email     String   @unique
+  username  String   @unique
+  password  String
+  role      String
+  person    Person?  @relation(fields: [personId], references: [id])
+  personId  Int?     @unique
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@map("user")
+}
+
+model Person {
+  id             Int             @id @default(autoincrement())
+  fullName       String
+  position       String?
+  category       PersonCategory
+  phoneNumber    String?
+  address        String?
+  email          String?
+  photo          String?
+  startDate      DateTime?
+  endDate        DateTime?
+  status         PersonStatus    @default(ACTIVE)
+  user           User?
+  projectMembers ProjectMember[]
+  reports        ReportProject[]
+  createdAt      DateTime        @default(now())
+  updatedAt      DateTime        @updatedAt
+
+  @@map("person")
+}
+
+model Project {
+  id             Int             @id @default(autoincrement())
+  title          String
+  description    String?
+  projectOwner   String?
+  email          String?
+  altEmail1      String?
+  altEmail2      String?
+  altEmail3      String?
+  phone          String?
+  location       String?
+  startDate      DateTime?
+  endDate        DateTime?
+  status         ProjectStatus   @default(ONGOING)
+  reports        ReportProject[]
+  projectMembers ProjectMember[]
+  createdAt      DateTime        @default(now())
+  updatedAt      DateTime        @updatedAt
+
+  @@map("project")
+}
+
+model ProjectMember {
+  id         Int      @id @default(autoincrement())
+  personId   Int
+  projectId  Int
+  person     Person   @relation(fields: [personId], references: [id])
+  project    Project  @relation(fields: [projectId], references: [id])
+  assignedAt DateTime @default(now())
+
+  @@unique([personId, projectId])
+  @@map("project_member")
+}
+
+model ReportProject {
+  id        Int      @id @default(autoincrement())
+  title     String
+  content   String
+  projectId Int
+  project   Project  @relation(fields: [projectId], references: [id])
+  personId  Int
+  person    Person   @relation(fields: [personId], references: [id])
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@map("report_project")
+}
+
+enum PersonCategory {
+  PERMANENT
+  FREELANCER
+  OUTSOURCE
+  INTERN
+  PART_TIME
+  CONTRACT
+}
+
+enum PersonStatus {
+  ACTIVE
+  INACTIVE
+  SUSPENDED
+  TERMINATED
+}
+
+enum ProjectStatus {
+  ONGOING
+  COMPLETED
+  CANCELLED
+  PAUSED
+}
