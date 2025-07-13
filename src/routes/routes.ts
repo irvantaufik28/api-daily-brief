@@ -2,6 +2,7 @@ import express from "express";
 import personController from "../controller/personController";
 import projectController from "../controller/projectController";
 import companyController from "../controller/companyController";
+import reportController from "../controller/reportController";
 
 const router = express.Router();
 
@@ -22,6 +23,13 @@ router.get('/company', companyController.get);
 router.get('/company/:id', companyController.getByid);
 router.post('/company/create', companyController.create);
 router.patch('/company/update/:id', companyController.update);
+
+router.get('/report', reportController.get);
+router.get('/report/:id', reportController.getByid);
+router.post('/report/create', reportController.create);
+router.patch('/report/update-detail/:id', reportController.updateReportDetail);
+router.delete('/report/delete/:id', reportController.removeReport);
+router.delete('/report/delete-detail/:id', reportController.removeReportDetail);
 
 
 export default router;
