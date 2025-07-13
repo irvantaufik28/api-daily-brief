@@ -5,8 +5,23 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 Object.defineProperty(exports, "__esModule", { value: true });
 const express_1 = __importDefault(require("express"));
 const personController_1 = __importDefault(require("../controller/personController"));
+const projectController_1 = __importDefault(require("../controller/projectController"));
+const companyController_1 = __importDefault(require("../controller/companyController"));
 const router = express_1.default.Router();
 router.get('/person', personController_1.default.get);
+router.get('/person/:id', personController_1.default.getById);
 router.post('/person/create', personController_1.default.create);
+router.delete('/person/update/:id', personController_1.default.update);
+router.get('/project', projectController_1.default.get);
+router.get('/project/:id', projectController_1.default.getByid);
+router.post('/project/create', projectController_1.default.create);
+router.patch('/project/update/:id', projectController_1.default.update);
+router.delete('/project/delete/:id', projectController_1.default.remove);
+router.post('/project/member-assign', projectController_1.default.assignProject);
+router.post('/project/member-unassign', projectController_1.default.unassignProject);
+router.get('/company', companyController_1.default.get);
+router.get('/company/:id', companyController_1.default.getByid);
+router.post('/company/create', companyController_1.default.create);
+router.patch('/company/update/:id', companyController_1.default.update);
 exports.default = router;
 //# sourceMappingURL=routes.js.map

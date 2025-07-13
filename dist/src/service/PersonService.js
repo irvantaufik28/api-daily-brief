@@ -14,9 +14,9 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 Object.defineProperty(exports, "__esModule", { value: true });
 const bcrypt_1 = __importDefault(require("bcrypt"));
 const database_1 = require("../application/database");
+const response_error_1 = require("../error/response-error");
 class PersonService {
-    constructor() { }
-    get(request) {
+    static get(request) {
         return __awaiter(this, void 0, void 0, function* () {
             var _a, _b;
             const page = (_a = request.page) !== null && _a !== void 0 ? _a : 1;
@@ -74,9 +74,31 @@ class PersonService {
             };
         });
     }
-    create(request) {
+    static getById(id) {
+        return __awaiter(this, void 0, void 0, function* () {
+            const person = yield database_1.prismaClient.person.findUnique({
+                where: { id },
+                include: {
+                    user: true
+                }
+            });
+            if (!person) {
+                throw new response_error_1.ResponseError(404, "person not found");
+            }
+            return person;
+        });
+    }
+    static create(request) {
         return __awaiter(this, void 0, void 0, function* () {
             const hashedPassword = yield bcrypt_1.default.hash(request.password, 10);
+            const existingUser = yield database_1.prismaClient.user.findUnique({
+                where: {
+                    username: request.username,
+                },
+            });
+            if (existingUser) {
+                throw new response_error_1.ResponseError(400, "Username already exists");
+            }
             yield database_1.prismaClient.$transaction((tx) => __awaiter(this, void 0, void 0, function* () {
                 var _a, _b;
                 const user = yield tx.user.create({
@@ -105,6 +127,58 @@ class PersonService {
                 });
                 return user;
             }));
+        });
+    }
+    static update(userId, request) {
+        return __awaiter(this, void 0, void 0, function* () {
+            const existingUser = yield database_1.prismaClient.user.findUnique({
+                where: { id: userId },
+            });
+            if (!existingUser) {
+                throw new response_error_1.ResponseError(404, "User not found");
+            }
+            const usernameTaken = yield database_1.prismaClient.user.findFirst({
+                where: {
+                    username: request.username,
+                    NOT: { id: userId }
+                }
+            });
+            if (usernameTaken) {
+                throw new response_error_1.ResponseError(400, "Username already exists");
+            }
+            let hashedPassword = existingUser.password;
+            if (request.password) {
+                hashedPassword = yield bcrypt_1.default.hash(request.password, 10);
+            }
+            const updatedUser = yield database_1.prismaClient.$transaction((tx) => __awaiter(this, void 0, void 0, function* () {
+                const user = yield tx.user.update({
+                    where: { id: userId },
+                    data: {
+                        username: request.username,
+                        password: hashedPassword,
+                        role: request.role,
+                        person: {
+                            update: {
+                                fullName: request.fullName,
+                                email: request.email,
+                                position: request.position,
+                                category: request.category,
+                                phoneNumber: request.phoneNumber,
+                                address: request.address,
+                                photo: request.photo,
+                                startDate: request.startDate ? new Date(request.startDate) : null,
+                                endDate: request.endDate ? new Date(request.endDate) : null,
+                                status: request.status,
+                            }
+                        }
+                    },
+                    include: {
+                        person: true,
+                    },
+                });
+                return user;
+            }));
+            return updatedUser;
         });
     }
 }

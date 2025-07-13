@@ -8,23 +8,18 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
         step((generator = generator.apply(thisArg, _arguments || [])).next());
     });
 };
-var __importDefault = (this && this.__importDefault) || function (mod) {
-    return (mod && mod.__esModule) ? mod : { "default": mod };
-};
 Object.defineProperty(exports, "__esModule", { value: true });
-const PersonService_1 = __importDefault(require("../service/PersonService"));
+const CompanyService_1 = require("../service/CompanyService");
 const get = (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
     try {
         const request = {
-            fullName: req.query.fullName,
-            position: req.query.position,
-            status: req.query.status,
+            name: req.query.name,
             page: req.query.page,
             size: req.query.size,
             orderBy: req.query.orderBy,
             sortBy: req.query.sortBy
         };
-        const result = yield PersonService_1.default.get(request);
+        const result = yield CompanyService_1.CompanyService.get(request);
         return res.status(200).json({
             message: "success",
             data: result
@@ -34,10 +29,10 @@ const get = (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
         next(error);
     }
 });
-const getById = (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
+const getByid = (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
     try {
         const id = parseInt(req.params.id);
-        const result = yield PersonService_1.default.getById(id);
+        const result = yield CompanyService_1.CompanyService.getById(id);
         return res.status(200).json({
             message: "success",
             data: result
@@ -49,7 +44,7 @@ const getById = (req, res, next) => __awaiter(void 0, void 0, void 0, function* 
 });
 const create = (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
     try {
-        const result = yield PersonService_1.default.create(req.body);
+        const result = yield CompanyService_1.CompanyService.create(req.body);
         return res.status(200).json({
             message: "success",
             data: result
@@ -62,7 +57,7 @@ const create = (req, res, next) => __awaiter(void 0, void 0, void 0, function* (
 const update = (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
     try {
         const id = parseInt(req.params.id);
-        const result = yield PersonService_1.default.update(id, req.body);
+        const result = yield CompanyService_1.CompanyService.update(id, req.body);
         return res.status(200).json({
             message: "success",
             data: result
@@ -74,8 +69,8 @@ const update = (req, res, next) => __awaiter(void 0, void 0, void 0, function* (
 });
 exports.default = {
     get,
-    getById,
+    getByid,
     create,
     update
 };
-//# sourceMappingURL=personController.js.map
+//# sourceMappingURL=companyController.js.map

@@ -23,6 +23,7 @@ const get = (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
             },
         });
         return res.status(200).json({
+            message: "success",
             data: user
         });
     }
