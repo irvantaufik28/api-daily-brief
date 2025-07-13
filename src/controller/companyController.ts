@@ -1,58 +1,55 @@
 import { Request, Response, NextFunction } from 'express';
-import PersonService from '../service/PersonService';
+import { CompanyService } from '../service/CompanyService';
 
 
 
 const get = async (req: Request, res: Response, next: NextFunction): Promise<any> => {
     try {
-
-
         const request = {
-            fullName: req.query.fullName,
-            position: req.query.position,
-            status: req.query.status,
+            name: req.query.name,
             page: req.query.page,
             size: req.query.size,
             orderBy: req.query.orderBy,
             sortBy: req.query.sortBy
         }
-        const result = await PersonService.get(request)
+        const result = await CompanyService.get(request)
 
         return res.status(200).json({
             message: "success",
             data: result
         });
+        
     } catch (error) {
         next(error);
     }
 };
 
-const getById = async (req: Request, res: Response, next: NextFunction): Promise<any> => {
+const getByid = async (req: Request, res: Response, next: NextFunction): Promise<any> => {
     try {
 
         const id = parseInt(req.params.id);
-        const result = await PersonService.getById(id)
+        const result = await CompanyService.getById(id)
 
         return res.status(200).json({
             message: "success",
             data: result
         });
+
     } catch (error) {
         next(error);
     }
 };
-
 
 const create = async (req: any, res: Response, next: NextFunction): Promise<any> => {
 
     try {
-        const result = await PersonService.create(req.body);
-
-
+        const result = await CompanyService.create(req.body);
+       
         return res.status(200).json({
             message: "success",
             data: result
         });
+
     } catch (error: any) {
         next(error)
     }
@@ -62,13 +59,13 @@ const update = async (req: any, res: Response, next: NextFunction): Promise<any>
 
     try {
         const id = parseInt(req.params.id);
-        const result = await PersonService.update(id, req.body);
-
-
+        const result = await CompanyService.update(id, req.body);
+        
         return res.status(200).json({
             message: "success",
             data: result
         });
+
     } catch (error: any) {
         next(error)
     }
@@ -76,9 +73,10 @@ const update = async (req: any, res: Response, next: NextFunction): Promise<any>
 
 
 
+
 export default {
     get,
-    getById,
+    getByid,
     create,
     update
 }

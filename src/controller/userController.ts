@@ -16,7 +16,9 @@ const get = async (req: Request, res: Response, next: NextFunction): Promise<any
              },
         });
 
+      
         return res.status(200).json({
+            message: "success",
             data: user
         });
     } catch (error) {

@@ -43,15 +43,10 @@ model Person {
 
 model Project {
   id             Int             @id @default(autoincrement())
+  companyId      Int
+  company        Company         @relation(fields: [companyId], references: [id])
   title          String
   description    String?
-  projectOwner   String?
-  email          String?
-  altEmail1      String?
-  altEmail2      String?
-  altEmail3      String?
-  phone          String?
-  location       String?
   startDate      DateTime?
   endDate        DateTime?
   status         ProjectStatus   @default(ONGOING)
@@ -70,6 +65,8 @@ model ProjectMember {
   person     Person   @relation(fields: [personId], references: [id])
   project    Project  @relation(fields: [projectId], references: [id])
   assignedAt DateTime @default(now())
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
 
   @@unique([personId, projectId])
   @@map("project_member")
@@ -95,8 +92,26 @@ model ReportDetail {
   description     String
   reportProject   ReportProject @relation(fields: [reportProjectId], references: [id])
   reportProjectId Int
+  createdAt       DateTime      @default(now())
+  updatedAt       DateTime      @updatedAt
 
   @@map("report_detail")
+}
+
+model Company {
+  id        Int     @id @default(autoincrement())
+  name      String?
+  email     String?
+  altEmail1 String?
+  altEmail2 String?
+  altEmail3 String?
+  phone     String?
+  location  String?
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
+  projects  Project[]
+
+  @@map("company")
 }
 
 enum PersonCategory {
