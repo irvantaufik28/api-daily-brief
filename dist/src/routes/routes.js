@@ -15,7 +15,7 @@ router.post('/login', authController_1.default.login);
 router.get('/person', jwt_1.default.allowAdmin, personController_1.default.get);
 router.get('/person/:id', jwt_1.default.allowAdmin, personController_1.default.getById);
 router.post('/person/create', jwt_1.default.allowAdmin, personController_1.default.create);
-router.delete('/person/update/:id', jwt_1.default.allowAdmin, personController_1.default.update);
+router.patch('/person/update/:id', jwt_1.default.allowAdmin, personController_1.default.update);
 router.get('/project', jwt_1.default.allowAdmin, projectController_1.default.get);
 router.get('/project/:id', jwt_1.default.allowAdmin, projectController_1.default.getByid);
 router.post('/project/create', jwt_1.default.allowAdmin, projectController_1.default.create);

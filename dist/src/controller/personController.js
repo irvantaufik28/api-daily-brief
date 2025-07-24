@@ -24,6 +24,7 @@ const get = (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
             orderBy: req.query.orderBy,
             sortBy: req.query.sortBy
         };
+        console.log(request);
         const result = yield PersonService_1.default.get(request);
         return res.status(200).json({
             message: "success",

@@ -15,7 +15,7 @@ router.post('/login', authController.login);
 router.get('/person', authorized.allowAdmin, personController.get);
 router.get('/person/:id', authorized.allowAdmin, personController.getById);
 router.post('/person/create', authorized.allowAdmin, personController.create);
-router.delete('/person/update/:id', authorized.allowAdmin, personController.update);
+router.patch('/person/update/:id', authorized.allowAdmin, personController.update);
 
 router.get('/project', authorized.allowAdmin, projectController.get);
 router.get('/project/:id', authorized.allowAdmin, projectController.getByid);

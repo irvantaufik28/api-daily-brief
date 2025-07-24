@@ -34,11 +34,14 @@ class PersonService {
                 },
             });
         }
+        const allowedOrderFields = ["id", "fullName", "position", "status", "createdAt"];
+        const orderBy = allowedOrderFields.includes(request.orderBy) ? request.orderBy : "createdAt";
+        const sortBy = ["asc", "desc"].includes(request.sortBy) ? request.sortBy : "desc";
 
-        let orders = {
-            [request.orderBy || "createdAt"]: request.sortBy || "desc",
+        const orders = {
+            [orderBy]: sortBy
         };
-
+        
         const person = await prismaClient.person.findMany({
             orderBy: orders,
             where: {
