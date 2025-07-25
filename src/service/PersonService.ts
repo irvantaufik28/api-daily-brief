@@ -61,7 +61,7 @@ class PersonService {
         })
 
         return {
-            data: person,
+            persons: person,
             paging: {
                 page: page,
                 total_item: totalItems,

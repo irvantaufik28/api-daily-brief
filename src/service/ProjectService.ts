@@ -6,9 +6,10 @@ class ProjectService {
 
 
     static async get(request: any) {
-        const page = request.page ?? 1;
-        const size = request.size ?? 10;
-        const skip = (parseInt(page) - 1) * parseInt(size);
+        const page = parseInt(request.page ?? 1);
+        const size = parseInt(request.size ?? 10);
+        const skip = (page - 1) * size;
+
         const filters: any = [];
 
         if (request.title) {
@@ -28,35 +29,54 @@ class ProjectService {
             });
         }
 
-        let orders = {
+        const orderBy = {
             [request.orderBy || "createdAt"]: request.sortBy || "desc",
         };
 
-        const project = await prismaClient.project.findMany({
-            orderBy: orders,
-            where: {
-                AND: filters
-            },
+        const [projects, totalItems] = await prismaClient.$transaction([
+            prismaClient.project.findMany({
+                where: {
+                    AND: filters,
+                },
+                orderBy,
+                include: {
+                    company: {
+                        select: {
+                            name: true,
+                        },
+                    },
+                },
+                skip,
+                take: size,
+            }),
+            prismaClient.project.count({
+                where: {
+                    AND: filters,
+                },
+            }),
+        ]);
 
-            take: parseInt(size),
-            skip: skip,
-        })
+        const mapped = projects.map((project) => ({
+           id : project.id,
+           title : project.title,
+           description : project.description,
+           startDate : project.startDate,
+           status :project.status,
+           company : project.company.name
 
-        const totalItems = await prismaClient.project.count({
-            where: {
-                AND: filters
-            }
-        })
+        }));
 
         return {
-            data: project,
+            projects: mapped,
             paging: {
-                page: page,
+                page,
                 total_item: totalItems,
-                total_page: Math.ceil(totalItems / parseInt(size)),
+                total_page: Math.ceil(totalItems / size),
             },
         };
     }
+
+
 
     static async getById(id: number) {
         const project = await prismaClient.project.findUnique({

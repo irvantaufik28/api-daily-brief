@@ -15,9 +15,9 @@ class ProjectService {
     static get(request) {
         return __awaiter(this, void 0, void 0, function* () {
             var _a, _b;
-            const page = (_a = request.page) !== null && _a !== void 0 ? _a : 1;
-            const size = (_b = request.size) !== null && _b !== void 0 ? _b : 10;
-            const skip = (parseInt(page) - 1) * parseInt(size);
+            const page = parseInt((_a = request.page) !== null && _a !== void 0 ? _a : 1);
+            const size = parseInt((_b = request.size) !== null && _b !== void 0 ? _b : 10);
+            const skip = (page - 1) * size;
             const filters = [];
             if (request.title) {
                 filters.push({
@@ -34,28 +34,45 @@ class ProjectService {
                     },
                 });
             }
-            let orders = {
+            const orderBy = {
                 [request.orderBy || "createdAt"]: request.sortBy || "desc",
             };
-            const project = yield database_1.prismaClient.project.findMany({
-                orderBy: orders,
-                where: {
-                    AND: filters
-                },
-                take: parseInt(size),
-                skip: skip,
-            });
-            const totalItems = yield database_1.prismaClient.project.count({
-                where: {
-                    AND: filters
-                }
-            });
+            const [projects, totalItems] = yield database_1.prismaClient.$transaction([
+                database_1.prismaClient.project.findMany({
+                    where: {
+                        AND: filters,
+                    },
+                    orderBy,
+                    include: {
+                        company: {
+                            select: {
+                                name: true,
+                            },
+                        },
+                    },
+                    skip,
+                    take: size,
+                }),
+                database_1.prismaClient.project.count({
+                    where: {
+                        AND: filters,
+                    },
+                }),
+            ]);
+            const mapped = projects.map((project) => ({
+                id: project.id,
+                title: project.title,
+                description: project.description,
+                startDate: project.startDate,
+                status: project.status,
+                company: project.company.name
+            }));
             return {
-                data: project,
+                projects: mapped,
                 paging: {
-                    page: page,
+                    page,
                     total_item: totalItems,
-                    total_page: Math.ceil(totalItems / parseInt(size)),
+                    total_page: Math.ceil(totalItems / size),
                 },
             };
         });

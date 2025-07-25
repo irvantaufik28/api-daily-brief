@@ -38,25 +38,56 @@ class ReportService {
             const orderBy = {
                 [request.orderBy || "createdAt"]: request.sortBy || "desc",
             };
-            const reports = yield database_1.prismaClient.reportProject.findMany({
-                where: {
-                    AND: filters,
-                },
-                orderBy,
-                include: {
-                    project: true,
-                    person: true
-                },
-                skip,
-                take: parseInt(size),
-            });
-            const totalItems = yield database_1.prismaClient.reportProject.count({
-                where: {
-                    AND: filters,
-                },
+            const [reports, totalItems] = yield database_1.prismaClient.$transaction([
+                database_1.prismaClient.reportProject.findMany({
+                    where: {
+                        AND: filters,
+                    },
+                    orderBy,
+                    select: {
+                        id: true,
+                        reportDate: true,
+                        project: {
+                            select: {
+                                title: true,
+                                status: true,
+                                company: {
+                                    select: {
+                                        name: true,
+                                    },
+                                },
+                            },
+                        },
+                        person: {
+                            select: {
+                                id: true,
+                                fullName: true,
+                            },
+                        },
+                    },
+                    skip,
+                    take: parseInt(size),
+                }),
+                database_1.prismaClient.reportProject.count({
+                    where: {
+                        AND: filters,
+                    },
+                }),
+            ]);
+            const mapped = reports.map((r) => {
+                var _a, _b, _c, _d, _e, _f;
+                return ({
+                    id: r.id,
+                    reportDate: r.reportDate,
+                    projectTitle: (_a = r.project) === null || _a === void 0 ? void 0 : _a.title,
+                    projectStatus: (_b = r.project) === null || _b === void 0 ? void 0 : _b.status,
+                    companyName: (_d = (_c = r.project) === null || _c === void 0 ? void 0 : _c.company) === null || _d === void 0 ? void 0 : _d.name,
+                    personId: (_e = r.person) === null || _e === void 0 ? void 0 : _e.id,
+                    personFullName: (_f = r.person) === null || _f === void 0 ? void 0 : _f.fullName,
+                });
             });
             return {
-                data: reports,
+                reports: mapped,
                 paging: {
                     page: parseInt(page),
                     total_item: totalItems,
@@ -70,7 +101,11 @@ class ReportService {
             const detail = yield database_1.prismaClient.reportProject.findUnique({
                 where: { id },
                 include: {
-                    project: true,
+                    project: {
+                        include: {
+                            company: true, // nested include
+                        },
+                    },
                     person: true,
                     ReportDetail: true,
                 },

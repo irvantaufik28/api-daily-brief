@@ -75,6 +75,7 @@ model ProjectMember {
 model ReportProject {
   id           Int            @id @default(autoincrement())
   reportDate   DateTime?
+  emailStatus  EmailStatus    @default(PENDING)
   projectId    Int
   project      Project        @relation(fields: [projectId], references: [id])
   personId     Int
@@ -99,7 +100,7 @@ model ReportDetail {
 }
 
 model Company {
-  id        Int     @id @default(autoincrement())
+  id        Int       @id @default(autoincrement())
   name      String?
   email     String?
   altEmail1 String?
@@ -135,4 +136,16 @@ enum ProjectStatus {
   COMPLETED
   CANCELLED
   PAUSED
+}
+
+enum ReportStatus {
+  PENDING
+  FAILED
+  SENDING
+}
+
+enum EmailStatus {
+  PENDING
+  SUCCESS
+  FAILED
 }

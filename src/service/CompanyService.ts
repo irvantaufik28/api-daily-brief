@@ -39,7 +39,7 @@ export class CompanyService {
         })
 
         return {
-            data: company,
+            companies: company,
             paging: {
                 page: page,
                 total_item: totalItems,

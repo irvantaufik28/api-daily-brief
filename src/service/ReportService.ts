@@ -33,27 +33,55 @@ export class ReportService {
             [request.orderBy || "createdAt"]: request.sortBy || "desc",
         };
 
-        const reports = await prismaClient.reportProject.findMany({
-            where: {
-                AND: filters,
-            },
-            orderBy,
-            include: {
-                project: true,
-                person: true
-            },
-            skip,
-            take: parseInt(size),
-        });
+        const [reports, totalItems] = await prismaClient.$transaction([
+            prismaClient.reportProject.findMany({
+                where: {
+                    AND: filters,
+                },
+                orderBy,
+                select: {
+                    id: true,
+                    reportDate: true,
+                    project: {
+                        select: {
+                            title: true,
+                            status: true,
+                            company: {
+                                select: {
+                                    name: true,
+                                },
+                            },
+                        },
+                    },
+                    person: {
+                        select: {
+                            id : true,
+                            fullName: true,
+                        },
+                    },
+                },
+                skip,
+                take: parseInt(size),
+            }),
+            prismaClient.reportProject.count({
+                where: {
+                    AND: filters,
+                },
+            }),
+        ]);
 
-        const totalItems = await prismaClient.reportProject.count({
-            where: {
-                AND: filters,
-            },
-        });
+        const mapped = reports.map((r) => ({
+            id: r.id,
+            reportDate: r.reportDate,
+            projectTitle: r.project?.title,
+            projectStatus: r.project?.status,
+            companyName: r.project?.company?.name,
+            personId : r.person?.id,
+            personFullName: r.person?.fullName,
+        }));
 
         return {
-            data: reports,
+            reports: mapped,
             paging: {
                 page: parseInt(page),
                 total_item: totalItems,
@@ -62,11 +90,16 @@ export class ReportService {
         };
     }
 
+
     static async getById(id: number) {
         const detail = await prismaClient.reportProject.findUnique({
             where: { id },
             include: {
-                project: true,
+                project: {
+                    include: {
+                        company: true, // nested include
+                    },
+                },
                 person: true,
                 ReportDetail: true,
             },
