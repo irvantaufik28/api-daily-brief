@@ -42,6 +42,7 @@ export class ReportService {
                 select: {
                     id: true,
                     reportDate: true,
+                    emailStatus: true,
                     project: {
                         select: {
                             title: true,
@@ -75,6 +76,7 @@ export class ReportService {
             reportDate: r.reportDate,
             projectTitle: r.project?.title,
             projectStatus: r.project?.status,
+            emailStatus : r.emailStatus,
             companyName: r.project?.company?.name,
             personId : r.person?.id,
             personFullName: r.person?.fullName,
