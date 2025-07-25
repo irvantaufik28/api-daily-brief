@@ -47,6 +47,7 @@ class ReportService {
                     select: {
                         id: true,
                         reportDate: true,
+                        emailStatus: true,
                         project: {
                             select: {
                                 title: true,
@@ -81,6 +82,7 @@ class ReportService {
                     reportDate: r.reportDate,
                     projectTitle: (_a = r.project) === null || _a === void 0 ? void 0 : _a.title,
                     projectStatus: (_b = r.project) === null || _b === void 0 ? void 0 : _b.status,
+                    emailStatus: r.emailStatus,
                     companyName: (_d = (_c = r.project) === null || _c === void 0 ? void 0 : _c.company) === null || _d === void 0 ? void 0 : _d.name,
                     personId: (_e = r.person) === null || _e === void 0 ? void 0 : _e.id,
                     personFullName: (_f = r.person) === null || _f === void 0 ? void 0 : _f.fullName,
