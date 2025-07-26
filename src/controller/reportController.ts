@@ -38,18 +38,25 @@ const getByid = async (req: Request, res: Response, next: NextFunction): Promise
     }
 };
 
-const create = async (req: any, res: Response, next: NextFunction): Promise<any> => {
-
+const create = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
     try {
-        const result = await ReportService.create(req.body);
+        const { id, projectId, personId, reportDate, reports } = req.body;
 
+        const result = await ReportService.createOrUpdate({
+            id: id ? parseInt(id) : undefined,
+            projectId: parseInt(projectId),
+            personId: parseInt(personId),
+            reportDate: new Date(reportDate),
+            reports,
+        });
 
-        return res.status(200).json({
-            message: "success",
-            data: result
+        res.status(200).json({
+            message: id ? "updated" : "created",
+            data: result,
         });
     } catch (error: any) {
-        next(error)
+        console.error("Create report error:", error);
+        next(error);
     }
 };
 

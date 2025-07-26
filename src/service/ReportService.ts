@@ -30,7 +30,7 @@ export class ReportService {
         }
 
         const orderBy = {
-            [request.orderBy || "createdAt"]: request.sortBy || "desc",
+            [request.orderBy || "reportDate"]: request.sortBy || "desc",
         };
 
         const [reports, totalItems] = await prismaClient.$transaction([
@@ -56,7 +56,7 @@ export class ReportService {
                     },
                     person: {
                         select: {
-                            id : true,
+                            id: true,
                             fullName: true,
                         },
                     },
@@ -76,9 +76,9 @@ export class ReportService {
             reportDate: r.reportDate,
             projectTitle: r.project?.title,
             projectStatus: r.project?.status,
-            emailStatus : r.emailStatus,
+            emailStatus: r.emailStatus,
             companyName: r.project?.company?.name,
-            personId : r.person?.id,
+            personId: r.person?.id,
             personFullName: r.person?.fullName,
         }));
 
@@ -115,19 +115,36 @@ export class ReportService {
     }
 
 
-
-    static async create(request: any) {
+    static async createOrUpdate(request: any) {
         return await prismaClient.$transaction(async (tx) => {
-            const reportProject = await tx.reportProject.create({
-                data: {
-                    projectId: request.projectId,
-                    personId: request.personId,
-                    reportDate: request.reportDate ? new Date(request.reportDate) : null,
-                },
-            });
+            let reportProject;
+
+            if (request.id) {
+                reportProject = await tx.reportProject.findUnique({
+                    where: { id: request.id },
+                });
+
+                if (!reportProject) {
+                    throw new Error("Report project not found");
+                }
+
+                await tx.reportDetail.deleteMany({
+                    where: { reportProjectId: reportProject.id },
+                });
+
+
+            } else {
+                reportProject = await tx.reportProject.create({
+                    data: {
+                        projectId: Number(request.projectId),
+                        personId: Number(request.personId),
+                        reportDate: request.reportDate ? new Date(request.reportDate) : null,
+                    },
+                });
+            }
 
             const reportDetailsData = request.reports.map((r: any) => ({
-                workedHour: r.workedHour,
+                workedHour: parseInt(r.workedHour),
                 description: r.description,
                 reportProjectId: reportProject.id,
             }));
@@ -139,6 +156,7 @@ export class ReportService {
             return reportProject;
         });
     }
+
 
 
     static async updateReportDetail(reportDetailId: number, request: any) {

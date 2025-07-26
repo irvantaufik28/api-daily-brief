@@ -49,13 +49,21 @@ const getByid = (req, res, next) => __awaiter(void 0, void 0, void 0, function* 
 });
 const create = (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
     try {
-        const result = yield ReportService_1.default.create(req.body);
-        return res.status(200).json({
-            message: "success",
-            data: result
+        const { id, projectId, personId, reportDate, reports } = req.body;
+        const result = yield ReportService_1.default.createOrUpdate({
+            id: id ? parseInt(id) : undefined,
+            projectId: parseInt(projectId),
+            personId: parseInt(personId),
+            reportDate: new Date(reportDate),
+            reports,
+        });
+        res.status(200).json({
+            message: id ? "updated" : "created",
+            data: result,
         });
     }
     catch (error) {
+        console.error("Create report error:", error);
         next(error);
     }
 });

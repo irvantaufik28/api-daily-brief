@@ -36,7 +36,7 @@ class ReportService {
                 });
             }
             const orderBy = {
-                [request.orderBy || "createdAt"]: request.sortBy || "desc",
+                [request.orderBy || "reportDate"]: request.sortBy || "desc",
             };
             const [reports, totalItems] = yield database_1.prismaClient.$transaction([
                 database_1.prismaClient.reportProject.findMany({
@@ -118,18 +118,32 @@ class ReportService {
             return detail;
         });
     }
-    static create(request) {
+    static createOrUpdate(request) {
         return __awaiter(this, void 0, void 0, function* () {
             return yield database_1.prismaClient.$transaction((tx) => __awaiter(this, void 0, void 0, function* () {
-                const reportProject = yield tx.reportProject.create({
-                    data: {
-                        projectId: request.projectId,
-                        personId: request.personId,
-                        reportDate: request.reportDate ? new Date(request.reportDate) : null,
-                    },
-                });
+                let reportProject;
+                if (request.id) {
+                    reportProject = yield tx.reportProject.findUnique({
+                        where: { id: request.id },
+                    });
+                    if (!reportProject) {
+                        throw new Error("Report project not found");
+                    }
+                    yield tx.reportDetail.deleteMany({
+                        where: { reportProjectId: reportProject.id },
+                    });
+                }
+                else {
+                    reportProject = yield tx.reportProject.create({
+                        data: {
+                            projectId: Number(request.projectId),
+                            personId: Number(request.personId),
+                            reportDate: request.reportDate ? new Date(request.reportDate) : null,
+                        },
+                    });
+                }
                 const reportDetailsData = request.reports.map((r) => ({
-                    workedHour: r.workedHour,
+                    workedHour: parseInt(r.workedHour),
                     description: r.description,
                     reportProjectId: reportProject.id,
                 }));
