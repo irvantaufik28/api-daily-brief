@@ -5,6 +5,7 @@ import companyController from "../controller/companyController";
 import reportController from "../controller/reportController";
 import authorized from "../middleware/jwt"
 import authController from "../controller/authController";
+import { emailQueue } from "../queue/emailQueue";
 
 
 const router = express.Router();
@@ -36,6 +37,22 @@ router.post('/report/create', authorized.allowAdmin, reportController.create);
 router.patch('/report/update-detail/:id', authorized.allowAdmin, reportController.updateReportDetail);
 router.delete('/report/delete/:id', authorized.allowAdmin, reportController.removeReport);
 router.delete('/report/delete-detail/:id', authorized.allowAdmin, reportController.removeReportDetail);
+
+router.post("/send-email", async (req, res) => {
+    const { email, name } = req.body;
+
+    if (!email || !name) {
+        return res.status(400).json({ error: "Email and name are required" });
+    }
+
+    await emailQueue.add('sendEmail', {
+        to: email,
+        subject: 'Welcome!',
+        name: name,
+    });
+    res.json({ message: "✅ Email queued (Mailtrap)" });
+});
+
 
 
 export default router;

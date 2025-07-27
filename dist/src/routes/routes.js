@@ -1,4 +1,13 @@
 "use strict";
+var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, generator) {
+    function adopt(value) { return value instanceof P ? value : new P(function (resolve) { resolve(value); }); }
+    return new (P || (P = Promise))(function (resolve, reject) {
+        function fulfilled(value) { try { step(generator.next(value)); } catch (e) { reject(e); } }
+        function rejected(value) { try { step(generator["throw"](value)); } catch (e) { reject(e); } }
+        function step(result) { result.done ? resolve(result.value) : adopt(result.value).then(fulfilled, rejected); }
+        step((generator = generator.apply(thisArg, _arguments || [])).next());
+    });
+};
 var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
@@ -10,6 +19,7 @@ const companyController_1 = __importDefault(require("../controller/companyContro
 const reportController_1 = __importDefault(require("../controller/reportController"));
 const jwt_1 = __importDefault(require("../middleware/jwt"));
 const authController_1 = __importDefault(require("../controller/authController"));
+const emailQueue_1 = require("../queue/emailQueue");
 const router = express_1.default.Router();
 router.post('/login', authController_1.default.login);
 router.get('/person', jwt_1.default.allowAdmin, personController_1.default.get);
@@ -33,5 +43,17 @@ router.post('/report/create', jwt_1.default.allowAdmin, reportController_1.defau
 router.patch('/report/update-detail/:id', jwt_1.default.allowAdmin, reportController_1.default.updateReportDetail);
 router.delete('/report/delete/:id', jwt_1.default.allowAdmin, reportController_1.default.removeReport);
 router.delete('/report/delete-detail/:id', jwt_1.default.allowAdmin, reportController_1.default.removeReportDetail);
+router.post("/send-email", (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+    const { email, name } = req.body;
+    if (!email || !name) {
+        return res.status(400).json({ error: "Email and name are required" });
+    }
+    yield emailQueue_1.emailQueue.add('sendEmail', {
+        to: email,
+        subject: 'Welcome!',
+        name: name,
+    });
+    res.json({ message: "✅ Email queued (Mailtrap)" });
+}));
 exports.default = router;
 //# sourceMappingURL=routes.js.map
