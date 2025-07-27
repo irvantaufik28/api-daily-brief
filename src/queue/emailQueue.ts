@@ -1,4 +1,3 @@
-// src/queues/emailQueue.ts
 import { Queue, Worker, Job } from 'bullmq';
 import nodemailer from 'nodemailer';
 import ejs from 'ejs';
@@ -13,29 +12,45 @@ interface EmailJob {
   name: string;
 }
 
-// ✅ Gunakan config Redis Upstash sebagai object (bukan createClient)
+// ✅ Redis Upstash connection
 const redisConnection = {
   connectionName: 'upstash',
   host: process.env.REDIS_HOST,
   port: Number(process.env.REDIS_PORT),
   username: process.env.REDIS_USERNAME,
   password: process.env.REDIS_PASSWORD,
-  tls: process.env.REDIS_USE_TLS === 'true' ? {} : undefined, // TLS aktif jika true
+  tls: process.env.REDIS_USE_TLS === 'true' ? {} : undefined,
 };
 
+// ✅ Buat Queue
 export const emailQueue = new Queue<EmailJob>('emailQueue', {
   connection: redisConnection,
 });
 
-const transporter = nodemailer.createTransport({
-  host: process.env.MAILTRAP_HOST,
-  port: Number(process.env.MAILTRAP_PORT),
-  auth: {
-    user: process.env.MAILTRAP_USER,
-    pass: process.env.MAILTRAP_PASS,
-  },
-});
+// ✅ Setup transporter berdasar NODE_ENV
+const transporter = (() => {
+  if (process.env.NODE_ENV === 'production') {
+    return nodemailer.createTransport({
+      service: 'gmail', // gunakan Gmail langsung
+      auth: {
+        user: process.env.GMAIL_USER,
+        pass: process.env.GMAIL_APP_PASS, // App password dari Gmail
+      },
+    });
+  } else {
+    // default Mailtrap untuk dev
+    return nodemailer.createTransport({
+      host: process.env.MAILTRAP_HOST,
+      port: Number(process.env.MAILTRAP_PORT),
+      auth: {
+        user: process.env.MAILTRAP_USER,
+        pass: process.env.MAILTRAP_PASS,
+      },
+    });
+  }
+})();
 
+// ✅ Worker
 new Worker<EmailJob>(
   'emailQueue',
   async (job: Job<EmailJob>) => {
@@ -47,7 +62,7 @@ new Worker<EmailJob>(
     );
 
     await transporter.sendMail({
-      from: `"App" <${process.env.APP_EMAIL_FROM}>`,
+      from: `"App 👋" <${process.env.APP_EMAIL_FROM}>`,
       to,
       subject,
       html,

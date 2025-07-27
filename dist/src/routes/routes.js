@@ -48,12 +48,21 @@ router.post("/send-email", (req, res) => __awaiter(void 0, void 0, void 0, funct
     if (!email || !name) {
         return res.status(400).json({ error: "Email and name are required" });
     }
-    yield emailQueue_1.emailQueue.add('sendEmail', {
+    // Tentukan `from` berdasarkan NODE_ENV
+    const from = process.env.NODE_ENV === "production"
+        ? process.env.GMAIL_USER
+        : process.env.APP_EMAIL_FROM;
+    // Tambahkan ke queue
+    yield emailQueue_1.emailQueue.add("sendEmail", {
         to: email,
-        subject: 'Welcome!',
-        name: name,
+        subject: "Welcome!",
+        name,
     });
-    res.json({ message: "✅ Email queued (Mailtrap)" });
+    res.json({
+        message: `✅ Email queued (${process.env.NODE_ENV === "production" ? "Gmail" : "Mailtrap"})`,
+        from,
+        to: email,
+    });
 }));
 exports.default = router;
 //# sourceMappingURL=routes.js.map
