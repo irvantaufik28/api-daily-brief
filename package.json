@@ -4,10 +4,10 @@
   "description": "api daily breif management daily report",
   "main": "main.js",
   "scripts": {
-    "start": "node dist/src/main.js",
+    "start": "node dist/main.js",
     "dev": "nodemon src/main.ts",
     "dev:worker": "ts-node src/queue/emailQueue.ts",
-    "start:worker": "node dist/src/queue/emailQueue.js",
+    "start:worker": "node dist/queue/emailQueue.js",
     "ts.check": "tsc --project tsconfig.json",
     "postinstall": "prisma generate",
     "build-prisma": "prisma generate",
