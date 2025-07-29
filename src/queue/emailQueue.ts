@@ -67,7 +67,7 @@ new Worker<EmailJob>(
   async (job: Job<EmailJob>) => {
 
     await prismaClient.reportProject.update({
-      where: { id: job.data.reports.id },
+      where: { id: job.data.reports.reportDetailId },
       data: {
         emailStatus: "SUCCESS"
       },
@@ -93,7 +93,7 @@ new Worker<EmailJob>(
       console.log(`✅ Email sent to ${to}, messageId: ${info.messageId}`);
     } catch (error) {
       await prismaClient.reportProject.update({
-        where: { id: job.data.reports.id },
+        where: { id: job.data.reports.reportDetailId },
         data: {
           emailStatus: "FAILED"
         },
