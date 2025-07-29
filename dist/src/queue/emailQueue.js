@@ -19,6 +19,7 @@ const ejs_1 = __importDefault(require("ejs"));
 const path_1 = __importDefault(require("path"));
 const dotenv_1 = __importDefault(require("dotenv"));
 const juice_1 = __importDefault(require("juice"));
+const database_1 = require("../application/database");
 dotenv_1.default.config();
 const isProd = process.env.NODE_ENV === 'production';
 const redisConnection = isProd
@@ -66,7 +67,12 @@ const transporter = (() => {
     }
 })();
 new bullmq_1.Worker('emailQueue', (job) => __awaiter(void 0, void 0, void 0, function* () {
-    console.log("📨 Received job:", job.data);
+    yield database_1.prismaClient.reportProject.update({
+        where: { id: job.data.reports.reportDetailId },
+        data: {
+            emailStatus: "SUCCESS"
+        },
+    });
     const { to, subject, reports } = job.data;
     try {
         const html = yield ejs_1.default.renderFile(path_1.default.join(__dirname, '../templates/welcome-email.ejs'), { reports });
@@ -80,6 +86,12 @@ new bullmq_1.Worker('emailQueue', (job) => __awaiter(void 0, void 0, void 0, fun
         console.log(`✅ Email sent to ${to}, messageId: ${info.messageId}`);
     }
     catch (error) {
+        yield database_1.prismaClient.reportProject.update({
+            where: { id: job.data.reports.reportDetailId },
+            data: {
+                emailStatus: "FAILED"
+            },
+        });
         console.error("❌ Failed to send email:", error);
     }
 }), {
