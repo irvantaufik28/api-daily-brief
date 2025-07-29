@@ -6,6 +6,8 @@
   "scripts": {
     "start": "node dist/src/main.js",
     "dev": "nodemon src/main.ts",
+    "dev:worker": "ts-node src/queue/emailQueue.ts",
+    "start:worker": "node dist/src/queue/emailQueue.js",
     "ts.check": "tsc --project tsconfig.json",
     "postinstall": "prisma generate",
     "build-prisma": "prisma generate",
@@ -39,7 +41,7 @@
     "winston": "^3.17.0"
   },
   "devDependencies": {
-    "@types/bcrypt": "^5.0.2",
+    "@types/bcrypt": "^6.0.0",
     "@types/cors": "^2.8.19",
     "@types/ejs": "^3.1.5",
     "@types/express": "^5.0.3",

@@ -1,19 +1,10 @@
 "use strict";
-var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, generator) {
-    function adopt(value) { return value instanceof P ? value : new P(function (resolve) { resolve(value); }); }
-    return new (P || (P = Promise))(function (resolve, reject) {
-        function fulfilled(value) { try { step(generator.next(value)); } catch (e) { reject(e); } }
-        function rejected(value) { try { step(generator["throw"](value)); } catch (e) { reject(e); } }
-        function step(result) { result.done ? resolve(result.value) : adopt(result.value).then(fulfilled, rejected); }
-        step((generator = generator.apply(thisArg, _arguments || [])).next());
-    });
-};
 var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 const PersonService_1 = __importDefault(require("../service/PersonService"));
-const get = (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
+const get = async (req, res, next) => {
     try {
         const request = {
             fullName: req.query.fullName,
@@ -25,7 +16,7 @@ const get = (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
             sortBy: req.query.sortBy
         };
         console.log(request);
-        const result = yield PersonService_1.default.get(request);
+        const result = await PersonService_1.default.get(request);
         return res.status(200).json({
             message: "success",
             data: result
@@ -34,11 +25,11 @@ const get = (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
     catch (error) {
         next(error);
     }
-});
-const getById = (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
+};
+const getById = async (req, res, next) => {
     try {
         const id = parseInt(req.params.id);
-        const result = yield PersonService_1.default.getById(id);
+        const result = await PersonService_1.default.getById(id);
         return res.status(200).json({
             message: "success",
             data: result
@@ -47,10 +38,10 @@ const getById = (req, res, next) => __awaiter(void 0, void 0, void 0, function* 
     catch (error) {
         next(error);
     }
-});
-const create = (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
+};
+const create = async (req, res, next) => {
     try {
-        const result = yield PersonService_1.default.create(req.body);
+        const result = await PersonService_1.default.create(req.body);
         return res.status(200).json({
             message: "success",
             data: result
@@ -59,11 +50,11 @@ const create = (req, res, next) => __awaiter(void 0, void 0, void 0, function* (
     catch (error) {
         next(error);
     }
-});
-const update = (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
+};
+const update = async (req, res, next) => {
     try {
         const id = parseInt(req.params.id);
-        const result = yield PersonService_1.default.update(id, req.body);
+        const result = await PersonService_1.default.update(id, req.body);
         return res.status(200).json({
             message: "success",
             data: result
@@ -72,7 +63,7 @@ const update = (req, res, next) => __awaiter(void 0, void 0, void 0, function* (
     catch (error) {
         next(error);
     }
-});
+};
 exports.default = {
     get,
     getById,
