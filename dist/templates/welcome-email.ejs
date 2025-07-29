@@ -1,15 +1,126 @@
 <!DOCTYPE html>
 <html>
   <head>
-    <style>
-      body { font-family: Arial; background: #f7f7f7; padding: 20px; }
-      .card { background: #fff; padding: 20px; border-radius: 8px; }
-    </style>
+    <meta charset="utf-8" />
+    <title>Report</title>
   </head>
-  <body>
-    <div class="card">
-      <h2>Hello <%= name %>,</h2>
-      <p>This is a test email via Mailtrap!</p>
+  <body
+    style="
+      font-family: Roboto, sans-serif;
+      background: #ffffff;
+      margin: 0;
+      padding: 0;
+    "
+  >
+    <div style="padding: 20px">
+      <div
+        style="
+          max-width: 800px;
+          margin: auto;
+          background: #fff;
+          border: 1px solid #eee;
+          padding: 30px;
+        "
+      >
+        <!-- Header -->
+        <div
+          style="
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+          "
+        >
+          <div style="display: flex; gap: 15px">
+           
+            <div>
+              <h2 style="margin: 0; font-size: 16px">
+                <%= reports.fullName %>
+              </h2>
+              <p style="margin: 4px 0; font-size: 12px; color: #555">
+                <%= reports.email %><br />
+                <%= reports.phone %>
+              </p>
+            </div>
+          </div>
+          <div style="text-align: right">
+            <h1 style="margin: 0; font-size: 20px">
+              Report #<%= reports.reportDetailId %>
+            </h1>
+            <p style="font-size: 12px; margin: 4px 0">
+              Issued: <%= reports.reportDate %>
+            </p>
+          </div>
+        </div>
+
+        <!-- Client + Project -->
+        <div
+          style="
+            display: flex;
+            justify-content: space-between;
+            margin-top: 30px;
+          "
+        >
+          <div style="max-width: 300px">
+            <h3 style="margin-bottom: 5px; font-size: 14px">Project Owner</h3>
+            <p style="font-size: 12px; color: #555">
+              <%= reports.projectOwner %>
+            </p>
+            <h3 style="margin-bottom: 5px; font-size: 14px">
+              Project Description
+            </h3>
+            <p style="font-size: 12px; color: #555">
+              <%= reports.projectDescription %>
+            </p>
+          </div>
+        </div>
+
+        <!-- Table -->
+        <div style="margin-top: 30px">
+          <table
+            style="width: 100%; border-collapse: collapse; font-size: 13px"
+          >
+            <thead>
+              <tr style="background: #eee">
+                <th
+                  style="text-align: left; padding: 8px; border: 1px solid #eee"
+                >
+                  Description
+                </th>
+                <th
+                  style="
+                    text-align: center;
+                    width: 80px;
+                    padding: 8px;
+                    border: 1px solid #eee;
+                  "
+                >
+                  Hours
+                </th>
+              </tr>
+            </thead>
+            <tbody>
+              <% reports.items.forEach(item => { %>
+              <tr>
+                <td style="padding: 8px; border: 1px solid #eee">
+                  <%= item.description %>
+                </td>
+                <td
+                  style="
+                    padding: 8px;
+                    border: 1px solid #eee;
+                    text-align: center;
+                  "
+                >
+                  <%= item.workedHour %>
+                </td>
+              </tr>
+              <% }) %>
+            </tbody>
+          </table>
+        </div>
+
+        
+      </div>
     </div>
   </body>
 </html>

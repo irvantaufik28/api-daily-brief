@@ -3,42 +3,53 @@ import nodemailer from 'nodemailer';
 import ejs from 'ejs';
 import path from 'path';
 import dotenv from 'dotenv';
+import juice from 'juice';
 
 dotenv.config();
 
 interface EmailJob {
   to: string;
   subject: string;
-  name: string;
+  reports: any;
+
 }
+const isProd = process.env.NODE_ENV === 'production';
+const redisConnection = isProd
+  ? {
+    connectionName: 'upstash',
+    host: process.env.REDIS_HOST,
+    port: Number(process.env.REDIS_PORT),
+    username: process.env.REDIS_USERNAME,
+    password: process.env.REDIS_PASSWORD,
+    tls: process.env.REDIS_USE_TLS === 'true' ? {} : undefined,
+  }
+  : {
+    host: process.env.REDIS_HOST || '127.0.0.1',
+    port: Number(process.env.REDIS_PORT || 6379),
+    password: process.env.REDIS_PASSWORD,
+  };
 
-// ✅ Redis Upstash connection
-const redisConnection = {
-  connectionName: 'upstash',
-  host: process.env.REDIS_HOST,
-  port: Number(process.env.REDIS_PORT),
-  username: process.env.REDIS_USERNAME,
-  password: process.env.REDIS_PASSWORD,
-  tls: process.env.REDIS_USE_TLS === 'true' ? {} : undefined,
-};
-
-// ✅ Buat Queue
 export const emailQueue = new Queue<EmailJob>('emailQueue', {
   connection: redisConnection,
 });
 
-// ✅ Setup transporter berdasar NODE_ENV
 const transporter = (() => {
   if (process.env.NODE_ENV === 'production') {
+    console.log('📦 Using Gmail transporter');
     return nodemailer.createTransport({
-      service: 'gmail', // gunakan Gmail langsung
+      service: 'gmail',
       auth: {
         user: process.env.GMAIL_USER,
-        pass: process.env.GMAIL_APP_PASS, // App password dari Gmail
+        pass: process.env.GMAIL_APP_PASS,
       },
     });
   } else {
-    // default Mailtrap untuk dev
+    console.log("🔧 Mailtrap config:", {
+      host: process.env.MAILTRAP_HOST,
+      port: process.env.MAILTRAP_PORT,
+      user: process.env.MAILTRAP_USER,
+    });
+
     return nodemailer.createTransport({
       host: process.env.MAILTRAP_HOST,
       port: Number(process.env.MAILTRAP_PORT),
@@ -50,27 +61,35 @@ const transporter = (() => {
   }
 })();
 
-// ✅ Worker
 new Worker<EmailJob>(
   'emailQueue',
   async (job: Job<EmailJob>) => {
-    const { to, subject, name } = job.data;
+    console.log("📨 Received job:", job.data);
 
-    const html = await ejs.renderFile(
-      path.join(__dirname, '../templates/welcome-email.ejs'),
-      { name }
-    );
+    const { to, subject, reports } = job.data;
 
-    await transporter.sendMail({
-      from: `"App 👋" <${process.env.APP_EMAIL_FROM}>`,
-      to,
-      subject,
-      html,
-    });
+    try {
+      const html = await ejs.renderFile(
+        path.join(__dirname, '../templates/welcome-email.ejs'),
+        { reports }
+      );
+      const inlinedHtml = juice(html);
 
-    console.log(`📨 Email sent to ${to}`);
+
+      const info = await transporter.sendMail({
+        from: `<${process.env.APP_EMAIL_FROM}>`,
+        to,
+        subject,
+        html : inlinedHtml
+      });
+
+      console.log(`✅ Email sent to ${to}, messageId: ${info.messageId}`);
+    } catch (error) {
+      console.error("❌ Failed to send email:", error);
+    }
   },
   {
     connection: redisConnection,
   }
 );
+

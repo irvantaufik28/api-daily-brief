@@ -11,6 +11,7 @@ const error_middleware_1 = require("./middleware/error-middleware");
 const client_1 = require("@prisma/client");
 const routes_1 = __importDefault(require("./routes/routes"));
 const dotenv_1 = __importDefault(require("dotenv"));
+const path_1 = __importDefault(require("path"));
 dotenv_1.default.config();
 const api = (0, express_1.default)();
 const PORT = process.env.PORT || 3000;
@@ -25,10 +26,48 @@ async function startServer() {
         api.use(express_1.default.urlencoded({ extended: true }));
         // API routes
         api.use('/api/v1', routes_1.default);
-        api.get('/', (req, res) => {
-            logging_1.logger.info('Test route accessed');
-            res.send('Hello from Express with TypeScript!');
-        });
+        // api.get('/', (req, res) => {
+        //   logger.info('Test route accessed');
+        //   res.send('Hello from Express with TypeScript!');
+        // });
+        api.set('view engine', 'ejs');
+        api.set('views', path_1.default.join(__dirname, 'templates'));
+        // // Route untuk tampilkan invoice
+        // api.get('/', async (req, res) => {
+        //   const data = await prismaClient.reportProject.findUnique({
+        //     where: { id: 6 },
+        //     include: {
+        //       project: {
+        //         include: {
+        //           company: true,
+        //         },
+        //       },
+        //       person: true,
+        //       ReportDetail: true,
+        //     },
+        //   });
+        //   if (!data) {
+        //     return
+        //   }
+        //   res.render('welcome-email', {
+        //     reports: {
+        //       fullName: data.person.fullName,
+        //       email: data.person.email,
+        //       phone: data.person.phoneNumber,
+        //       reportDetailId: data.id,
+        //       reportDate: data.reportDate
+        //         ? new Intl.DateTimeFormat("id-ID", {
+        //           day: "numeric",
+        //           month: "long",
+        //           year: "numeric",
+        //         }).format(new Date(data.reportDate))
+        //         : "Tanggal tidak tersedia",
+        //       projectOwner: data.project.company.name,
+        //       projectDescription: data.project.title,
+        //       items: data.ReportDetail
+        //     }
+        //   });
+        // });
         api.use(error_middleware_1.errorMiddleware);
         // Start server
         api.listen(PORT, () => {

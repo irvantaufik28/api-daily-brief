@@ -12,7 +12,7 @@
     "postinstall": "",
     "build-prisma": "",
     "test": "echo \"Error: no test specified\" && exit 1",
-    "build": "tsc && cp -r src/templates dist/templates"
+    "build": "tsc && rm -rf dist/templates && mkdir -p dist/templates && cp -r src/templates/* dist/templates/"
   },
   "pre-commit": [
     "ts.check",
@@ -34,6 +34,7 @@
     "express": "^5.1.0",
     "express-basic-auth": "^1.2.1",
     "jsonwebtoken": "^9.0.2",
+    "juice": "^11.0.1",
     "nodemailer": "^7.0.5",
     "pg": "^8.16.3",
     "pg-hstore": "^2.3.4",

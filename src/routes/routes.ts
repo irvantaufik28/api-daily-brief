@@ -6,6 +6,7 @@ import reportController from "../controller/reportController";
 import authorized from "../middleware/jwt"
 import authController from "../controller/authController";
 import { emailQueue } from "../queue/emailQueue";
+import emailController from "../controller/emailController";
 
 
 const router = express.Router();
@@ -37,33 +38,6 @@ router.post('/report/create', authorized.allowAdmin, reportController.create);
 router.patch('/report/update-detail/:id', authorized.allowAdmin, reportController.updateReportDetail);
 router.delete('/report/delete/:id', authorized.allowAdmin, reportController.removeReport);
 router.delete('/report/delete-detail/:id', authorized.allowAdmin, reportController.removeReportDetail);
-
-router.post("/send-email", async (req, res) => {
-  const { email, name } = req.body;
-
-  if (!email || !name) {
-    return res.status(400).json({ error: "Email and name are required" });
-  }
-
-  // Tentukan `from` berdasarkan NODE_ENV
-  const from =
-    process.env.NODE_ENV === "production"
-      ? process.env.GMAIL_USER
-      : process.env.APP_EMAIL_FROM;
-
-  // Tambahkan ke queue
-  await emailQueue.add("sendEmail", {
-    to: email,
-    subject: "Welcome!",
-    name,
-  });
-
-  res.json({
-    message: `✅ Email queued (${process.env.NODE_ENV === "production" ? "Gmail" : "Mailtrap"})`,
-    from,
-    to: email,
-  });
-});
-
+router.post("/send-email", authorized.allowAdmin, emailController.sendEmail)
 
 export default router;
