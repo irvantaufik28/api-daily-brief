@@ -4,6 +4,7 @@ import ejs from 'ejs';
 import path from 'path';
 import dotenv from 'dotenv';
 import juice from 'juice';
+import { prismaClient } from '../application/database';
 
 dotenv.config();
 
@@ -64,7 +65,13 @@ const transporter = (() => {
 new Worker<EmailJob>(
   'emailQueue',
   async (job: Job<EmailJob>) => {
-    console.log("📨 Received job:", job.data);
+
+    await prismaClient.reportProject.update({
+      where: { id: job.data.reports.reportDetailId },
+      data: {
+        emailStatus: "SUCCESS"
+      },
+    });
 
     const { to, subject, reports } = job.data;
 
@@ -80,11 +87,18 @@ new Worker<EmailJob>(
         from: `<${process.env.APP_EMAIL_FROM}>`,
         to,
         subject,
-        html : inlinedHtml
+        html: inlinedHtml
       });
 
       console.log(`✅ Email sent to ${to}, messageId: ${info.messageId}`);
     } catch (error) {
+      await prismaClient.reportProject.update({
+        where: { id: job.data.reports.reportDetailId },
+        data: {
+          emailStatus: "FAILED"
+        },
+      });
+
       console.error("❌ Failed to send email:", error);
     }
   },
@@ -92,4 +106,3 @@ new Worker<EmailJob>(
     connection: redisConnection,
   }
 );
-
