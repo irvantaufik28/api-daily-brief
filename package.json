@@ -12,7 +12,7 @@
     "postinstall": "",
     "build-prisma": "",
     "test": "echo \"Error: no test specified\" && exit 1",
-    "build": "tsc"
+    "build": "tsc && cp -r src/templates dist/templates"
   },
   "pre-commit": [
     "ts.check",
