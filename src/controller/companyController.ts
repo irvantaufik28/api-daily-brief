@@ -1,5 +1,6 @@
 import { Request, Response, NextFunction } from 'express';
 import { CompanyService } from '../service/CompanyService';
+import { prismaClient } from '../application/database';
 
 
 
@@ -18,7 +19,35 @@ const get = async (req: Request, res: Response, next: NextFunction): Promise<any
             message: "success",
             data: result
         });
-        
+
+    } catch (error) {
+        next(error);
+    }
+};
+
+const list = async (req: Request, res: Response, next: NextFunction): Promise<any> => {
+    try {
+        const result = await prismaClient.company.findMany({
+            orderBy: {
+                name: 'asc'
+            },
+            select: {
+                id: true,
+                name: true,
+                projects: {
+                    select: {
+                        id: true,
+                        title: true
+                    }
+                }
+            }
+        })
+
+        return res.status(200).json({
+            message: "success",
+            data: result
+        });
+
     } catch (error) {
         next(error);
     }
@@ -44,7 +73,7 @@ const create = async (req: any, res: Response, next: NextFunction): Promise<any>
 
     try {
         const result = await CompanyService.create(req.body);
-       
+
         return res.status(200).json({
             message: "success",
             data: result
@@ -60,7 +89,7 @@ const update = async (req: any, res: Response, next: NextFunction): Promise<any>
     try {
         const id = parseInt(req.params.id);
         const result = await CompanyService.update(id, req.body);
-        
+
         return res.status(200).json({
             message: "success",
             data: result
@@ -76,6 +105,7 @@ const update = async (req: any, res: Response, next: NextFunction): Promise<any>
 
 export default {
     get,
+    list,
     getByid,
     create,
     update

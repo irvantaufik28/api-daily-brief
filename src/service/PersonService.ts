@@ -41,7 +41,7 @@ class PersonService {
         const orders = {
             [orderBy]: sortBy
         };
-        
+
         const person = await prismaClient.person.findMany({
             orderBy: orders,
             where: {

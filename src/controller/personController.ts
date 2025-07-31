@@ -1,5 +1,6 @@
 import { Request, Response, NextFunction } from 'express';
 import PersonService from '../service/PersonService';
+import { prismaClient } from '../application/database';
 
 
 
@@ -22,6 +23,28 @@ const get = async (req: Request, res: Response, next: NextFunction): Promise<any
         return res.status(200).json({
             message: "success",
             data: result
+        });
+    } catch (error) {
+        next(error);
+    }
+};
+
+const list = async (req: Request, res: Response, next: NextFunction): Promise<any> => {
+    try {
+
+        const person = await prismaClient.person.findMany({
+            orderBy: {
+                fullName: 'asc'
+            },
+            select: {
+                id: true,
+                fullName: true
+            }
+        });
+
+        return res.status(200).json({
+            message: "success",
+            data: person
         });
     } catch (error) {
         next(error);
@@ -79,6 +102,7 @@ const update = async (req: any, res: Response, next: NextFunction): Promise<any>
 
 export default {
     get,
+    list,
     getById,
     create,
     update

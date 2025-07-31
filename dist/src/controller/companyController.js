@@ -10,6 +10,7 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 const CompanyService_1 = require("../service/CompanyService");
+const database_1 = require("../application/database");
 const get = (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
     try {
         const request = {
@@ -20,6 +21,32 @@ const get = (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
             sortBy: req.query.sortBy
         };
         const result = yield CompanyService_1.CompanyService.get(request);
+        return res.status(200).json({
+            message: "success",
+            data: result
+        });
+    }
+    catch (error) {
+        next(error);
+    }
+});
+const list = (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
+    try {
+        const result = yield database_1.prismaClient.company.findMany({
+            orderBy: {
+                name: 'asc'
+            },
+            select: {
+                id: true,
+                name: true,
+                projects: {
+                    select: {
+                        id: true,
+                        title: true
+                    }
+                }
+            }
+        });
         return res.status(200).json({
             message: "success",
             data: result
@@ -69,6 +96,7 @@ const update = (req, res, next) => __awaiter(void 0, void 0, void 0, function* (
 });
 exports.default = {
     get,
+    list,
     getByid,
     create,
     update

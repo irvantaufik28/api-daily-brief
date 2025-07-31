@@ -13,6 +13,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 const PersonService_1 = __importDefault(require("../service/PersonService"));
+const database_1 = require("../application/database");
 const get = (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
     try {
         const request = {
@@ -29,6 +30,26 @@ const get = (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
         return res.status(200).json({
             message: "success",
             data: result
+        });
+    }
+    catch (error) {
+        next(error);
+    }
+});
+const list = (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
+    try {
+        const person = yield database_1.prismaClient.person.findMany({
+            orderBy: {
+                fullName: 'asc'
+            },
+            select: {
+                id: true,
+                fullName: true
+            }
+        });
+        return res.status(200).json({
+            message: "success",
+            data: person
         });
     }
     catch (error) {
@@ -75,6 +96,7 @@ const update = (req, res, next) => __awaiter(void 0, void 0, void 0, function* (
 });
 exports.default = {
     get,
+    list,
     getById,
     create,
     update

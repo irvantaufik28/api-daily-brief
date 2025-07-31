@@ -14,6 +14,7 @@ const emailController_1 = __importDefault(require("../controller/emailController
 const router = express_1.default.Router();
 router.post('/login', authController_1.default.login);
 router.get('/person', jwt_1.default.allowAdmin, personController_1.default.get);
+router.get('/person-list', jwt_1.default.allowAdmin, personController_1.default.list);
 router.get('/person/:id', jwt_1.default.allowAdmin, personController_1.default.getById);
 router.post('/person/create', jwt_1.default.allowAdmin, personController_1.default.create);
 router.patch('/person/update/:id', jwt_1.default.allowAdmin, personController_1.default.update);
@@ -25,6 +26,7 @@ router.delete('/project/delete/:id', jwt_1.default.allowAdmin, projectController
 router.post('/project/member-assign', jwt_1.default.allowAdmin, projectController_1.default.assignProject);
 router.post('/project/member-unassign', jwt_1.default.allowAdmin, projectController_1.default.unassignProject);
 router.get('/company', jwt_1.default.allowAdmin, companyController_1.default.get);
+router.get('/company-list', jwt_1.default.allowAdmin, companyController_1.default.list);
 router.get('/company/:id', jwt_1.default.allowAdmin, companyController_1.default.getByid);
 router.post('/company/create', jwt_1.default.allowAdmin, companyController_1.default.create);
 router.patch('/company/update/:id', jwt_1.default.allowAdmin, companyController_1.default.update);

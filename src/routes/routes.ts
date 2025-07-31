@@ -15,6 +15,7 @@ const router = express.Router();
 router.post('/login', authController.login);
 
 router.get('/person', authorized.allowAdmin, personController.get);
+router.get('/person-list', authorized.allowAdmin, personController.list);
 router.get('/person/:id', authorized.allowAdmin, personController.getById);
 router.post('/person/create', authorized.allowAdmin, personController.create);
 router.patch('/person/update/:id', authorized.allowAdmin, personController.update);
@@ -28,6 +29,7 @@ router.post('/project/member-assign', authorized.allowAdmin, projectController.a
 router.post('/project/member-unassign', authorized.allowAdmin, projectController.unassignProject);
 
 router.get('/company', authorized.allowAdmin, companyController.get);
+router.get('/company-list', authorized.allowAdmin, companyController.list);
 router.get('/company/:id', authorized.allowAdmin, companyController.getByid);
 router.post('/company/create', authorized.allowAdmin, companyController.create);
 router.patch('/company/update/:id', authorized.allowAdmin, companyController.update);
