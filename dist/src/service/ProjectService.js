@@ -34,6 +34,13 @@ class ProjectService {
                     },
                 });
             }
+            if (request.companyId) {
+                filters.push({
+                    companyId: {
+                        equals: parseInt(request.companyId),
+                    },
+                });
+            }
             const orderBy = {
                 [request.orderBy || "createdAt"]: request.sortBy || "desc",
             };
@@ -46,6 +53,7 @@ class ProjectService {
                     include: {
                         company: {
                             select: {
+                                id: true,
                                 name: true,
                             },
                         },
@@ -65,6 +73,7 @@ class ProjectService {
                 description: project.description,
                 startDate: project.startDate,
                 status: project.status,
+                companyId: project.companyId,
                 company: project.company.name
             }));
             return {

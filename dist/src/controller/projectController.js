@@ -17,8 +17,8 @@ const response_error_1 = require("../error/response-error");
 const get = (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
     try {
         const request = {
-            fullName: req.query.fullName,
-            position: req.query.position,
+            title: req.query.title,
+            companyId: req.query.companyId,
             status: req.query.status,
             page: req.query.page,
             size: req.query.size,

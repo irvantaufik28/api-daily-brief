@@ -5,8 +5,8 @@ import { ResponseError } from '../error/response-error';
 const get = async (req: Request, res: Response, next: NextFunction): Promise<any> => {
     try {
         const request = {
-            fullName: req.query.fullName,
-            position: req.query.position,
+            title: req.query.title,
+            companyId: req.query.companyId,
             status: req.query.status,
             page: req.query.page,
             size: req.query.size,
@@ -14,7 +14,7 @@ const get = async (req: Request, res: Response, next: NextFunction): Promise<any
             sortBy: req.query.sortBy
         }
         const result = await ProjectService.get(request)
-     
+
         return res.status(200).json({
             message: "success",
             data: result
@@ -29,7 +29,7 @@ const getByid = async (req: Request, res: Response, next: NextFunction): Promise
 
         const id = parseInt(req.params.id);
         const result = await ProjectService.getById(id)
-      
+
         return res.status(200).json({
             message: "success",
             data: result
@@ -44,7 +44,7 @@ const create = async (req: any, res: Response, next: NextFunction): Promise<any>
     try {
         const result = await ProjectService.create(req.body);
 
-       
+
         return res.status(200).json({
             message: "success",
             data: result
@@ -60,7 +60,7 @@ const update = async (req: any, res: Response, next: NextFunction): Promise<any>
         const id = parseInt(req.params.id);
         const result = await ProjectService.update(id, req.body);
 
-        
+
         return res.status(200).json({
             message: "success",
             data: result
