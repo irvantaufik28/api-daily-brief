@@ -11,6 +11,7 @@ const reportController_1 = __importDefault(require("../controller/reportControll
 const jwt_1 = __importDefault(require("../middleware/jwt"));
 const authController_1 = __importDefault(require("../controller/authController"));
 const emailController_1 = __importDefault(require("../controller/emailController"));
+const projectMemberController_1 = __importDefault(require("../controller/projectMemberController"));
 const router = express_1.default.Router();
 router.post('/login', authController_1.default.login);
 router.get('/person', jwt_1.default.allowAdmin, personController_1.default.get);
@@ -37,5 +38,7 @@ router.patch('/report/update-detail/:id', jwt_1.default.allowAdmin, reportContro
 router.delete('/report/delete/:id', jwt_1.default.allowAdmin, reportController_1.default.removeReport);
 router.delete('/report/delete-detail/:id', jwt_1.default.allowAdmin, reportController_1.default.removeReportDetail);
 router.post("/send-email", jwt_1.default.allowAdmin, emailController_1.default.sendEmail);
+router.get('/project-member', jwt_1.default.allowAdmin, projectMemberController_1.default.getMemberByProjectId);
+router.post('/project-member/assign-unassign', jwt_1.default.allowAdmin, projectMemberController_1.default.assignUnassignMemberProject);
 exports.default = router;
 //# sourceMappingURL=routes.js.map

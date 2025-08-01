@@ -7,6 +7,7 @@ import authorized from "../middleware/jwt"
 import authController from "../controller/authController";
 import { emailQueue } from "../queue/emailQueue";
 import emailController from "../controller/emailController";
+import projectMemberController from "../controller/projectMemberController";
 
 
 const router = express.Router();
@@ -41,5 +42,9 @@ router.patch('/report/update-detail/:id', authorized.allowAdmin, reportControlle
 router.delete('/report/delete/:id', authorized.allowAdmin, reportController.removeReport);
 router.delete('/report/delete-detail/:id', authorized.allowAdmin, reportController.removeReportDetail);
 router.post("/send-email", authorized.allowAdmin, emailController.sendEmail)
+
+
+router.get('/project-member', authorized.allowAdmin, projectMemberController.getMemberByProjectId);
+router.post('/project-member/assign-unassign', authorized.allowAdmin, projectMemberController.assignUnassignMemberProject);
 
 export default router;

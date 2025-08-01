@@ -68,7 +68,7 @@ model ProjectMember {
   createdAt  DateTime @default(now())
   updatedAt  DateTime @updatedAt
 
-  @@unique([personId, projectId])
+  @@unique([projectId, personId], name: "projectId_personId")
   @@map("project_member")
 }
 

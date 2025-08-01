@@ -17,7 +17,7 @@ const get = async (req: Request, res: Response, next: NextFunction): Promise<any
             orderBy: req.query.orderBy,
             sortBy: req.query.sortBy
         }
-        console.log(request)
+       
         const result = await PersonService.get(request)
 
         return res.status(200).json({
