@@ -16,6 +16,7 @@ const router = express.Router();
 router.post('/login', authController.login);
 
 router.get('/person', authorized.allowAdmin, personController.get);
+router.get('/person-not-in/project', authorized.allowAdmin, personController.listNotInProject);
 router.get('/person-list', authorized.allowAdmin, personController.list);
 router.get('/person/:id', authorized.allowAdmin, personController.getById);
 router.post('/person/create', authorized.allowAdmin, personController.create);

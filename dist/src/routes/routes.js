@@ -15,6 +15,7 @@ const projectMemberController_1 = __importDefault(require("../controller/project
 const router = express_1.default.Router();
 router.post('/login', authController_1.default.login);
 router.get('/person', jwt_1.default.allowAdmin, personController_1.default.get);
+router.get('/person-not-in/project', jwt_1.default.allowAdmin, personController_1.default.listNotInProject);
 router.get('/person-list', jwt_1.default.allowAdmin, personController_1.default.list);
 router.get('/person/:id', jwt_1.default.allowAdmin, personController_1.default.getById);
 router.post('/person/create', jwt_1.default.allowAdmin, personController_1.default.create);

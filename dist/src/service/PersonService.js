@@ -77,6 +77,88 @@ class PersonService {
             };
         });
     }
+    static getPersonNotInProject(request) {
+        return __awaiter(this, void 0, void 0, function* () {
+            var _a, _b;
+            const page = (_a = request.page) !== null && _a !== void 0 ? _a : 1;
+            const size = (_b = request.size) !== null && _b !== void 0 ? _b : 10;
+            const skip = (parseInt(page) - 1) * parseInt(size);
+            const filters = [];
+            if (request.fullName) {
+                filters.push({
+                    fullName: {
+                        contains: request.fullName,
+                        mode: "insensitive",
+                    },
+                });
+            }
+            if (request.position) {
+                filters.push({
+                    position: {
+                        equals: request.position,
+                    },
+                });
+            }
+            if (request.status) {
+                filters.push({
+                    status: {
+                        equals: request.status,
+                    },
+                });
+            }
+            // Ambil semua personId yang sudah tergabung di project tertentu
+            const assignedPerson = yield database_1.prismaClient.projectMember.findMany({
+                where: {
+                    projectId: parseInt(request.projectId),
+                },
+                select: {
+                    personId: true,
+                },
+            });
+            const excludedPersonIds = assignedPerson.map((pm) => pm.personId);
+            const allowedOrderFields = ["id", "fullName", "position", "status", "createdAt"];
+            const orderBy = allowedOrderFields.includes(request.orderBy) ? request.orderBy : "createdAt";
+            const sortBy = ["asc", "desc"].includes(request.sortBy) ? request.sortBy : "desc";
+            const orders = {
+                [orderBy]: sortBy,
+            };
+            const persons = yield database_1.prismaClient.person.findMany({
+                where: {
+                    AND: [
+                        ...filters,
+                        {
+                            id: {
+                                notIn: excludedPersonIds,
+                            },
+                        },
+                    ],
+                },
+                orderBy: orders,
+                skip,
+                take: parseInt(size),
+            });
+            const totalItems = yield database_1.prismaClient.person.count({
+                where: {
+                    AND: [
+                        ...filters,
+                        {
+                            id: {
+                                notIn: excludedPersonIds,
+                            },
+                        },
+                    ],
+                },
+            });
+            return {
+                persons,
+                paging: {
+                    page,
+                    total_item: totalItems,
+                    total_page: Math.ceil(totalItems / parseInt(size)),
+                },
+            };
+        });
+    }
     static getById(id) {
         return __awaiter(this, void 0, void 0, function* () {
             const person = yield database_1.prismaClient.person.findUnique({

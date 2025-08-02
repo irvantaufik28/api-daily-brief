@@ -17,7 +17,7 @@ const get = async (req: Request, res: Response, next: NextFunction): Promise<any
             orderBy: req.query.orderBy,
             sortBy: req.query.sortBy
         }
-       
+
         const result = await PersonService.get(request)
 
         return res.status(200).json({
@@ -42,6 +42,30 @@ const list = async (req: Request, res: Response, next: NextFunction): Promise<an
             }
         });
 
+        return res.status(200).json({
+            message: "success",
+            data: person
+        });
+    } catch (error) {
+        next(error);
+    }
+};
+
+const listNotInProject = async (req: Request, res: Response, next: NextFunction): Promise<any> => {
+    try {
+
+        const request = {
+            fullName: req.query.fullName,
+            position: req.query.position,
+            status: req.query.status,
+            projectId: req.query.projectId,
+            page: req.query.page,
+            size: req.query.size,
+            orderBy: req.query.orderBy,
+            sortBy: req.query.sortBy
+        }
+
+        const person = await PersonService.getPersonNotInProject(request)
         return res.status(200).json({
             message: "success",
             data: person
@@ -105,5 +129,6 @@ export default {
     list,
     getById,
     create,
-    update
+    update,
+    listNotInProject
 }

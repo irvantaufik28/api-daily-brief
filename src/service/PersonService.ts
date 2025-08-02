@@ -72,6 +72,98 @@ class PersonService {
 
     }
 
+
+    static async getPersonNotInProject(request: any) {
+        const page = request.page ?? 1;
+        const size = request.size ?? 10;
+        const skip = (parseInt(page) - 1) * parseInt(size);
+        const filters: any = [];
+
+        if (request.fullName) {
+            filters.push({
+                fullName: {
+                    contains: request.fullName,
+                    mode: "insensitive",
+                },
+            });
+        }
+
+        if (request.position) {
+            filters.push({
+                position: {
+                    equals: request.position,
+                },
+            });
+        }
+
+        if (request.status) {
+            filters.push({
+                status: {
+                    equals: request.status,
+                },
+            });
+        }
+
+        // Ambil semua personId yang sudah tergabung di project tertentu
+        const assignedPerson = await prismaClient.projectMember.findMany({
+            where: {
+                projectId: parseInt(request.projectId),
+            },
+            select: {
+                personId: true,
+            },
+        });
+
+        const excludedPersonIds = assignedPerson.map((pm) => pm.personId);
+
+        const allowedOrderFields = ["id", "fullName", "position", "status", "createdAt"];
+        const orderBy = allowedOrderFields.includes(request.orderBy) ? request.orderBy : "createdAt";
+        const sortBy = ["asc", "desc"].includes(request.sortBy) ? request.sortBy : "desc";
+
+        const orders = {
+            [orderBy]: sortBy,
+        };
+
+        const persons = await prismaClient.person.findMany({
+            where: {
+                AND: [
+                    ...filters,
+                    {
+                        id: {
+                            notIn: excludedPersonIds,
+                        },
+                    },
+                ],
+            },
+            orderBy: orders,
+            skip,
+            take: parseInt(size),
+        });
+
+        const totalItems = await prismaClient.person.count({
+            where: {
+                AND: [
+                    ...filters,
+                    {
+                        id: {
+                            notIn: excludedPersonIds,
+                        },
+                    },
+                ],
+            },
+        });
+
+        return {
+            persons,
+            paging: {
+                page,
+                total_item: totalItems,
+                total_page: Math.ceil(totalItems / parseInt(size)),
+            },
+        };
+    }
+
+
     static async getById(id: number) {
         const person = await prismaClient.person.findUnique({
             where: { id },

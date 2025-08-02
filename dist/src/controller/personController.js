@@ -55,6 +55,28 @@ const list = (req, res, next) => __awaiter(void 0, void 0, void 0, function* () 
         next(error);
     }
 });
+const listNotInProject = (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
+    try {
+        const request = {
+            fullName: req.query.fullName,
+            position: req.query.position,
+            status: req.query.status,
+            projectId: req.query.projectId,
+            page: req.query.page,
+            size: req.query.size,
+            orderBy: req.query.orderBy,
+            sortBy: req.query.sortBy
+        };
+        const person = yield PersonService_1.default.getPersonNotInProject(request);
+        return res.status(200).json({
+            message: "success",
+            data: person
+        });
+    }
+    catch (error) {
+        next(error);
+    }
+});
 const getById = (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
     try {
         const id = parseInt(req.params.id);
@@ -98,6 +120,7 @@ exports.default = {
     list,
     getById,
     create,
-    update
+    update,
+    listNotInProject
 };
 //# sourceMappingURL=personController.js.map
