@@ -8,6 +8,8 @@ const generateAccessToken = (data: any) => {
         id: data.id,
         username: data.username,
         role: data.role,
+        fullName : data.fullName,
+        photo : data.photo
     };
     const secretKey = process.env.JWT_SECRET_KEY || "defaultSecretKey";
 

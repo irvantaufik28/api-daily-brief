@@ -17,10 +17,19 @@ const response_error_1 = require("../error/response-error");
 const generate_token_1 = require("../utils/generate-token");
 const bcrypt_1 = __importDefault(require("bcrypt"));
 const login = (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
+    var _a, _b;
     try {
         const user = yield database_1.prismaClient.user.findFirst({
             where: {
                 username: req.body.username
+            },
+            include: {
+                person: {
+                    select: {
+                        fullName: true,
+                        photo: true
+                    }
+                }
             }
         });
         if (!user) {
@@ -33,7 +42,9 @@ const login = (req, res, next) => __awaiter(void 0, void 0, void 0, function* ()
         const user_data_token = {
             id: user.id,
             username: user.username,
-            role: user.role
+            role: user.role,
+            fullName: (_a = user.person) === null || _a === void 0 ? void 0 : _a.fullName,
+            photo: (_b = user.person) === null || _b === void 0 ? void 0 : _b.photo
         };
         const token = (0, generate_token_1.generateAccessToken)(user_data_token);
         const user_data = {

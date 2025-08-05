@@ -9,8 +9,16 @@ const login = async (req: any, res: Response, next: NextFunction): Promise<any> 
         const user = await prismaClient.user.findFirst({
             where: {
                 username: req.body.username
+            },
+            include: {
+                person: {
+                    select: {
+                        fullName: true,
+                        photo: true
+                    }
+                }
             }
-        })
+        });
 
         if (!user) {
             throw new ResponseError(404, "username or passwod wrong!")
@@ -26,7 +34,9 @@ const login = async (req: any, res: Response, next: NextFunction): Promise<any> 
         const user_data_token = {
             id: user.id,
             username: user.username,
-            role: user.role
+            role: user.role,
+            fullName: user.person?.fullName,
+            photo: user.person?.photo
         }
 
         const token = generateAccessToken(user_data_token)

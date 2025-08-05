@@ -12,6 +12,8 @@ const generateAccessToken = (data) => {
         id: data.id,
         username: data.username,
         role: data.role,
+        fullName: data.fullName,
+        photo: data.photo
     };
     const secretKey = process.env.JWT_SECRET_KEY || "defaultSecretKey";
     const accessToken = jsonwebtoken_1.default.sign(user_data, secretKey, { expiresIn: "6h" });
