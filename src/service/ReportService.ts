@@ -29,6 +29,14 @@ export class ReportService {
             });
         }
 
+        if (request.isDraft) {
+            filters.push({
+                isDraft: request.isDraft
+            })
+        }
+
+
+        console.log(request)
         const orderBy = {
             [request.orderBy || "reportDate"]: request.sortBy || "desc",
         };
@@ -114,31 +122,80 @@ export class ReportService {
         return detail;
     }
 
+    static async useDraft(request: any) {
+
+    }
+
 
     static async createOrUpdate(request: any) {
         return await prismaClient.$transaction(async (tx) => {
             let reportProject;
 
+            const isDraft = request.isDraft
             if (request.id) {
+                // UPDATE case
                 reportProject = await tx.reportProject.findUnique({
                     where: { id: request.id },
                 });
 
                 if (!reportProject) {
-                    throw new Error("Report project not found");
+                    throw new ResponseError(404, "Report project not found");
                 }
+
+                // Cek reportDate conflict jika reportDate diubah
+                if (
+                    request.reportDate &&
+                    new Date(request.reportDate).toISOString() !== reportProject.reportDate?.toISOString()
+                ) {
+                    const existing = await tx.reportProject.findFirst({
+                        where: {
+                            id: { not: reportProject.id },
+                            projectId: Number(request.projectId),
+                            personId: Number(request.personId),
+                            reportDate: new Date(request.reportDate),
+                        },
+                    });
+
+                    if (existing) {
+                        throw new ResponseError(404, "Report date already exists for this project and person.");
+                    }
+                }
+
+                // Update reportProject
+                reportProject = await tx.reportProject.update({
+                    where: { id: reportProject.id },
+                    data: {
+                        reportDate: request.reportDate ? new Date(request.reportDate) : null,
+                        isDraft,
+                    },
+                });
 
                 await tx.reportDetail.deleteMany({
                     where: { reportProjectId: reportProject.id },
                 });
 
-
             } else {
+                // CREATE case
+                if (request.reportDate) {
+                    const existing = await tx.reportProject.findFirst({
+                        where: {
+                            projectId: Number(request.projectId),
+                            personId: Number(request.personId),
+                            reportDate: new Date(request.reportDate),
+                        },
+                    });
+
+                    if (existing) {
+                        throw new ResponseError(400, "Report date already exists for this project and person.");
+                    }
+                }
+
                 reportProject = await tx.reportProject.create({
                     data: {
                         projectId: Number(request.projectId),
                         personId: Number(request.personId),
                         reportDate: request.reportDate ? new Date(request.reportDate) : null,
+                        isDraft,
                     },
                 });
             }

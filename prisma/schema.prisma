@@ -77,6 +77,7 @@ model ReportProject {
   reportDate   DateTime?
   emailStatus  EmailStatus    @default(PENDING)
   projectId    Int
+  isDraft      Boolean        @default(false)
   project      Project        @relation(fields: [projectId], references: [id])
   personId     Int
   person       Person         @relation(fields: [personId], references: [id])

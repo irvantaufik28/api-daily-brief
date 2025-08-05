@@ -7,6 +7,7 @@ const get = async (req: Request, res: Response, next: NextFunction): Promise<any
             personId: req.query.personId,
             projectId: req.query.position,
             reportDate: req.query.reportDate,
+            isDraft: req.query.isDraft === 'true' ? true : req.query.isDraft === 'false' ? false : undefined,
             page: req.query.page,
             size: req.query.size,
             orderBy: req.query.orderBy,
@@ -40,7 +41,7 @@ const getByid = async (req: Request, res: Response, next: NextFunction): Promise
 
 const create = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
     try {
-        const { id, projectId, personId, reportDate, reports } = req.body;
+        const { id, projectId, personId, reportDate, reports, isDraft } = req.body;
 
         const result = await ReportService.createOrUpdate({
             id: id ? parseInt(id) : undefined,
@@ -48,6 +49,8 @@ const create = async (req: Request, res: Response, next: NextFunction): Promise<
             personId: parseInt(personId),
             reportDate: new Date(reportDate),
             reports,
+            isDraft: isDraft ? isDraft : false
+
         });
 
         res.status(200).json({

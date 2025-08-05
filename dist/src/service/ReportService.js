@@ -35,6 +35,12 @@ class ReportService {
                     reportDate: new Date(request.reportDate),
                 });
             }
+            if (request.isDraft) {
+                filters.push({
+                    isDraft: request.isDraft
+                });
+            }
+            console.log(request);
             const orderBy = {
                 [request.orderBy || "reportDate"]: request.sortBy || "desc",
             };
@@ -118,27 +124,71 @@ class ReportService {
             return detail;
         });
     }
+    static useDraft(request) {
+        return __awaiter(this, void 0, void 0, function* () {
+        });
+    }
     static createOrUpdate(request) {
         return __awaiter(this, void 0, void 0, function* () {
             return yield database_1.prismaClient.$transaction((tx) => __awaiter(this, void 0, void 0, function* () {
+                var _a;
                 let reportProject;
+                const isDraft = request.isDraft;
                 if (request.id) {
+                    // UPDATE case
                     reportProject = yield tx.reportProject.findUnique({
                         where: { id: request.id },
                     });
                     if (!reportProject) {
-                        throw new Error("Report project not found");
+                        throw new response_error_1.ResponseError(404, "Report project not found");
                     }
+                    // Cek reportDate conflict jika reportDate diubah
+                    if (request.reportDate &&
+                        new Date(request.reportDate).toISOString() !== ((_a = reportProject.reportDate) === null || _a === void 0 ? void 0 : _a.toISOString())) {
+                        const existing = yield tx.reportProject.findFirst({
+                            where: {
+                                id: { not: reportProject.id },
+                                projectId: Number(request.projectId),
+                                personId: Number(request.personId),
+                                reportDate: new Date(request.reportDate),
+                            },
+                        });
+                        if (existing) {
+                            throw new response_error_1.ResponseError(404, "Report date already exists for this project and person.");
+                        }
+                    }
+                    // Update reportProject
+                    reportProject = yield tx.reportProject.update({
+                        where: { id: reportProject.id },
+                        data: {
+                            reportDate: request.reportDate ? new Date(request.reportDate) : null,
+                            isDraft,
+                        },
+                    });
                     yield tx.reportDetail.deleteMany({
                         where: { reportProjectId: reportProject.id },
                     });
                 }
                 else {
+                    // CREATE case
+                    if (request.reportDate) {
+                        const existing = yield tx.reportProject.findFirst({
+                            where: {
+                                projectId: Number(request.projectId),
+                                personId: Number(request.personId),
+                                reportDate: new Date(request.reportDate),
+                            },
+                        });
+                        if (existing) {
+                            throw new response_error_1.ResponseError(400, "Report date already exists for this project and person.");
+                        }
+                    }
                     reportProject = yield tx.reportProject.create({
                         data: {
                             projectId: Number(request.projectId),
                             personId: Number(request.personId),
                             reportDate: request.reportDate ? new Date(request.reportDate) : null,
+                            isDraft,
                         },
                     });
                 }
