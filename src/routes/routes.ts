@@ -37,6 +37,7 @@ router.post('/company/create', authorized.allowAdmin, companyController.create);
 router.patch('/company/update/:id', authorized.allowAdmin, companyController.update);
 
 router.get('/report', authorized.allowAdmin, reportController.get);
+router.get('/report-draft-count', authorized.allowAdmin, reportController.countDraft);
 router.get('/report/:id', authorized.allowAdmin, reportController.getByid);
 router.post('/report/create', authorized.allowAdmin, reportController.create);
 router.patch('/report/update-detail/:id', authorized.allowAdmin, reportController.updateReportDetail);

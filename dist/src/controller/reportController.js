@@ -13,6 +13,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 const ReportService_1 = __importDefault(require("../service/ReportService"));
+const database_1 = require("../application/database");
 const get = (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
     try {
         const request = {
@@ -108,12 +109,29 @@ const removeReportDetail = (req, res, next) => __awaiter(void 0, void 0, void 0,
         next(error);
     }
 });
+const countDraft = (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
+    try {
+        const count = yield database_1.prismaClient.reportProject.count({
+            where: {
+                isDraft: true,
+            },
+        });
+        return res.status(200).json({
+            message: "success",
+            data: count,
+        });
+    }
+    catch (error) {
+        next(error);
+    }
+});
 exports.default = {
     get,
     getByid,
     create,
     updateReportDetail,
     removeReport,
-    removeReportDetail
+    removeReportDetail,
+    countDraft
 };
 //# sourceMappingURL=reportController.js.map

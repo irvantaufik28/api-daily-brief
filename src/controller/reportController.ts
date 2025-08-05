@@ -1,5 +1,6 @@
 import { Request, Response, NextFunction } from 'express';
 import ReportService from '../service/ReportService';
+import { prismaClient } from '../application/database';
 
 const get = async (req: Request, res: Response, next: NextFunction): Promise<any> => {
     try {
@@ -106,6 +107,23 @@ const removeReportDetail = async (req: Request, res: Response, next: NextFunctio
         next(error);
     }
 };
+const countDraft = async (req: Request, res: Response, next: NextFunction): Promise<any> => {
+    try {
+        const count = await prismaClient.reportProject.count({
+            where: {
+                isDraft: true,
+            },
+        });
+
+        return res.status(200).json({
+            message: "success",
+            data: count,
+        });
+    } catch (error) {
+        next(error);
+    }
+};
+
 
 
 export default {
@@ -114,6 +132,7 @@ export default {
     create,
     updateReportDetail,
     removeReport,
-    removeReportDetail
+    removeReportDetail,
+    countDraft
 
 }

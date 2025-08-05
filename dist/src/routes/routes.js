@@ -33,6 +33,7 @@ router.get('/company/:id', jwt_1.default.allowAdmin, companyController_1.default
 router.post('/company/create', jwt_1.default.allowAdmin, companyController_1.default.create);
 router.patch('/company/update/:id', jwt_1.default.allowAdmin, companyController_1.default.update);
 router.get('/report', jwt_1.default.allowAdmin, reportController_1.default.get);
+router.get('/report-draft-count', jwt_1.default.allowAdmin, reportController_1.default.countDraft);
 router.get('/report/:id', jwt_1.default.allowAdmin, reportController_1.default.getByid);
 router.post('/report/create', jwt_1.default.allowAdmin, reportController_1.default.create);
 router.patch('/report/update-detail/:id', jwt_1.default.allowAdmin, reportController_1.default.updateReportDetail);
