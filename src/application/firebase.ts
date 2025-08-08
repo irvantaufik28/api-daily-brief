@@ -1,9 +1,17 @@
 import admin from "firebase-admin";
-import serviceAccount from "../storage/firebase/serviceAccountKey.json";
+
+if (!process.env.FIREBASE_SERVICE_ACCOUNT) {
+  throw new Error("FIREBASE_SERVICE_ACCOUNT env var is not set");
+}
+
+const serviceAccountJson = JSON.parse(process.env.FIREBASE_SERVICE_ACCOUNT);
+
+// Konversi string private_key: ganti '\\n' (dua karakter) jadi '\n' (newline sebenarnya)
+serviceAccountJson.private_key = serviceAccountJson.private_key.replace(/\\n/g, '\n');
 
 admin.initializeApp({
-  credential: admin.credential.cert(serviceAccount as admin.ServiceAccount),
-  databaseURL: process.env.FIREBASE_URL_DB// ganti sesuai dari config Firebase
+  credential: admin.credential.cert(serviceAccountJson),
+  databaseURL: process.env.FIREBASE_URL_DB,
 });
 
 export const realtimeDb = admin.database();
