@@ -45,7 +45,7 @@ router.post("/send-email", jwt_1.default.allowAdmin, emailController_1.default.s
 router.get('/project-member', jwt_1.default.allowAdmin, projectMemberController_1.default.getMemberByProjectId);
 router.post('/project-member/assign-unassign', jwt_1.default.allowAdmin, projectMemberController_1.default.assignUnassignMemberProject);
 router.post('/notification/send-to-admins', notificationController_1.default.sendNotificationToAdmins);
-router.patch('/notification/read/:notificationId', notificationController_1.default.markAsRead);
+router.patch('/notification/read/:notifId', notificationController_1.default.markAsRead);
 router.patch('/notification/read-all', notificationController_1.default.markAllAsRead);
 exports.default = router;
 //# sourceMappingURL=routes.js.map

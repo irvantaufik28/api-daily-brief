@@ -20,6 +20,7 @@ const sendNotificationToAdmins = async (req: Request, res: Response, next: NextF
 const markAsRead = async (req: Request, res: Response, next: NextFunction) => {
   try {
     const notifId = req.params.notifId;
+    console.log(notifId)
     if (!notifId) {
       return res.status(400).json({ message: "Notification ID is required" });
     }

@@ -52,7 +52,7 @@ router.get('/project-member', authorized.allowAdmin, projectMemberController.get
 router.post('/project-member/assign-unassign', authorized.allowAdmin, projectMemberController.assignUnassignMemberProject);
 
 router.post('/notification/send-to-admins', notificationController.sendNotificationToAdmins);
-router.patch('/notification/read/:notificationId', notificationController.markAsRead);
+router.patch('/notification/read/:notifId', notificationController.markAsRead);
 router.patch('/notification/read-all', notificationController.markAllAsRead);
 
 
