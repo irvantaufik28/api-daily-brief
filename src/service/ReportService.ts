@@ -1,5 +1,6 @@
 import { ResponseError } from "../error/response-error";
 import { prismaClient } from "../application/database";
+import { NotificationService } from "./NotificationService";
 
 
 export class ReportService {
@@ -35,8 +36,6 @@ export class ReportService {
             })
         }
 
-
-        console.log(request)
         const orderBy = {
             [request.orderBy || "reportDate"]: request.sortBy || "desc",
         };
@@ -122,11 +121,6 @@ export class ReportService {
         return detail;
     }
 
-    static async useDraft(request: any) {
-
-    }
-
-
     static async createOrUpdate(request: any) {
         return await prismaClient.$transaction(async (tx) => {
             let reportProject;
@@ -198,6 +192,24 @@ export class ReportService {
                         isDraft,
                     },
                 });
+
+                if (isDraft) {
+                    const notifData = {
+                        senderId: Number(request.personId),
+                        title: "New Report for Review.",
+                        body: "here is a new report waiting for your attention. Kindly review it when you have a moment.",
+                        type: "Report",
+                        objectId: Number(reportProject.id)
+                    }
+
+                    await NotificationService.sendNotificationToAdminGroup(
+                        notifData.senderId,
+                        notifData.title,
+                        notifData.body,
+                        notifData.type,
+                        notifData.objectId
+                    );
+                }
             }
 
             const reportDetailsData = request.reports.map((r: any) => ({

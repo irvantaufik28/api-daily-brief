@@ -8,6 +8,8 @@ import authController from "../controller/authController";
 import { emailQueue } from "../queue/emailQueue";
 import emailController from "../controller/emailController";
 import projectMemberController from "../controller/projectMemberController";
+import notificationController from "../controller/notificationController";
+// import NotificationService from "../service/NotificationService";
 
 
 const router = express.Router();
@@ -48,5 +50,10 @@ router.post("/send-email", authorized.allowAdmin, emailController.sendEmail)
 
 router.get('/project-member', authorized.allowAdmin, projectMemberController.getMemberByProjectId);
 router.post('/project-member/assign-unassign', authorized.allowAdmin, projectMemberController.assignUnassignMemberProject);
+
+router.post('/notification/send-to-admins', notificationController.sendNotificationToAdmins);
+router.patch('/notification/read/:notificationId', notificationController.markAsRead);
+router.patch('/notification/read-all', notificationController.markAllAsRead);
+
 
 export default router;
