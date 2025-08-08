@@ -12,6 +12,7 @@ Object.defineProperty(exports, "__esModule", { value: true });
 exports.ReportService = void 0;
 const response_error_1 = require("../error/response-error");
 const database_1 = require("../application/database");
+const NotificationService_1 = require("./NotificationService");
 class ReportService {
     static get(request) {
         return __awaiter(this, void 0, void 0, function* () {
@@ -40,7 +41,6 @@ class ReportService {
                     isDraft: request.isDraft
                 });
             }
-            console.log(request);
             const orderBy = {
                 [request.orderBy || "reportDate"]: request.sortBy || "desc",
             };
@@ -124,10 +124,6 @@ class ReportService {
             return detail;
         });
     }
-    static useDraft(request) {
-        return __awaiter(this, void 0, void 0, function* () {
-        });
-    }
     static createOrUpdate(request) {
         return __awaiter(this, void 0, void 0, function* () {
             return yield database_1.prismaClient.$transaction((tx) => __awaiter(this, void 0, void 0, function* () {
@@ -191,6 +187,16 @@ class ReportService {
                             isDraft,
                         },
                     });
+                    if (isDraft) {
+                        const notifData = {
+                            senderId: Number(request.personId),
+                            title: "New Report for Review.",
+                            body: "here is a new report waiting for your attention. Kindly review it when you have a moment.",
+                            type: "Report",
+                            objectId: Number(reportProject.id)
+                        };
+                        yield NotificationService_1.NotificationService.sendNotificationToAdminGroup(notifData.senderId, notifData.title, notifData.body, notifData.type, notifData.objectId);
+                    }
                 }
                 const reportDetailsData = request.reports.map((r) => ({
                     workedHour: parseInt(r.workedHour),

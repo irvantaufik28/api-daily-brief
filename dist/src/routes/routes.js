@@ -12,6 +12,8 @@ const jwt_1 = __importDefault(require("../middleware/jwt"));
 const authController_1 = __importDefault(require("../controller/authController"));
 const emailController_1 = __importDefault(require("../controller/emailController"));
 const projectMemberController_1 = __importDefault(require("../controller/projectMemberController"));
+const notificationController_1 = __importDefault(require("../controller/notificationController"));
+// import NotificationService from "../service/NotificationService";
 const router = express_1.default.Router();
 router.post('/login', authController_1.default.login);
 router.get('/person', jwt_1.default.allowAdmin, personController_1.default.get);
@@ -42,5 +44,8 @@ router.delete('/report/delete-detail/:id', jwt_1.default.allowAdmin, reportContr
 router.post("/send-email", jwt_1.default.allowAdmin, emailController_1.default.sendEmail);
 router.get('/project-member', jwt_1.default.allowAdmin, projectMemberController_1.default.getMemberByProjectId);
 router.post('/project-member/assign-unassign', jwt_1.default.allowAdmin, projectMemberController_1.default.assignUnassignMemberProject);
+router.post('/notification/send-to-admins', notificationController_1.default.sendNotificationToAdmins);
+router.patch('/notification/read/:notificationId', notificationController_1.default.markAsRead);
+router.patch('/notification/read-all', notificationController_1.default.markAllAsRead);
 exports.default = router;
 //# sourceMappingURL=routes.js.map
