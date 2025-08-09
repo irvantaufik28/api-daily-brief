@@ -175,22 +175,25 @@ class PersonService {
     }
     static create(request) {
         return __awaiter(this, void 0, void 0, function* () {
-            const hashedPassword = yield bcrypt_1.default.hash(request.password, 10);
+            // Generate password jika tidak ada input password
+            const plainPassword = request.password && request.password.trim().length > 0
+                ? request.password
+                : `${request.username}123`;
+            const hashedPassword = yield bcrypt_1.default.hash(plainPassword, 10);
             const existingUser = yield database_1.prismaClient.user.findUnique({
                 where: {
                     username: request.username,
                 },
             });
             if (existingUser) {
-                throw new response_error_1.ResponseError(400, "Username already exists");
+                throw new response_error_1.ResponseError(400, 'Username already exists');
             }
-            yield database_1.prismaClient.$transaction((tx) => __awaiter(this, void 0, void 0, function* () {
-                var _a, _b;
-                const user = yield tx.user.create({
+            const user = yield database_1.prismaClient.$transaction((tx) => __awaiter(this, void 0, void 0, function* () {
+                return yield tx.user.create({
                     data: {
                         username: request.username,
                         password: hashedPassword,
-                        role: request.role,
+                        role: request.role ? request.role : "USER",
                         person: {
                             create: {
                                 fullName: request.fullName,
@@ -200,8 +203,8 @@ class PersonService {
                                 phoneNumber: request.phoneNumber,
                                 address: request.address,
                                 photo: request.photo,
-                                startDate: (_a = new Date(request.startDate)) !== null && _a !== void 0 ? _a : null,
-                                endDate: (_b = new Date(request.endDate)) !== null && _b !== void 0 ? _b : null,
+                                startDate: request.startDate ? new Date(request.startDate) : null,
+                                endDate: request.endDate ? new Date(request.endDate) : null,
                                 status: request.status,
                             },
                         },
@@ -210,8 +213,8 @@ class PersonService {
                         person: true,
                     },
                 });
-                return user;
             }));
+            return user;
         });
     }
     static update(userId, request) {
@@ -263,6 +266,36 @@ class PersonService {
                 });
                 return user;
             }));
+            return updatedUser;
+        });
+    }
+    static changePassword(username, oldPassword, newPassword) {
+        return __awaiter(this, void 0, void 0, function* () {
+            if (!oldPassword || oldPassword.trim().length === 0) {
+                throw new response_error_1.ResponseError(400, 'Old password is required');
+            }
+            if (!newPassword || newPassword.trim().length === 0) {
+                throw new response_error_1.ResponseError(400, 'New password is required');
+            }
+            // Cari user berdasarkan username
+            const user = yield database_1.prismaClient.user.findUnique({
+                where: { username },
+            });
+            if (!user) {
+                throw new response_error_1.ResponseError(404, 'User not found');
+            }
+            // Verifikasi password lama
+            const isMatch = yield bcrypt_1.default.compare(oldPassword, user.password);
+            if (!isMatch) {
+                throw new response_error_1.ResponseError(401, 'Old password is incorrect');
+            }
+            // Hash password baru
+            const hashedNewPassword = yield bcrypt_1.default.hash(newPassword, 10);
+            // Update password
+            const updatedUser = yield database_1.prismaClient.user.update({
+                where: { username },
+                data: { password: hashedNewPassword },
+            });
             return updatedUser;
         });
     }

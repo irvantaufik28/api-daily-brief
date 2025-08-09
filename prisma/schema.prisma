@@ -12,10 +12,10 @@ model User {
   username  String   @unique
   password  String
   role      String
-  person    Person?  @relation(fields: [personId], references: [id])
   personId  Int?     @unique
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
+  person    Person?  @relation(fields: [personId], references: [id])
 
   @@map("user")
 }
@@ -32,28 +32,28 @@ model Person {
   startDate      DateTime?
   endDate        DateTime?
   status         PersonStatus    @default(ACTIVE)
-  user           User?
-  projectMembers ProjectMember[]
-  reports        ReportProject[]
   createdAt      DateTime        @default(now())
   updatedAt      DateTime        @updatedAt
+  projectMembers ProjectMember[]
+  reports        ReportProject[]
+  user           User?
 
   @@map("person")
 }
 
 model Project {
   id             Int             @id @default(autoincrement())
-  companyId      Int
-  company        Company         @relation(fields: [companyId], references: [id])
   title          String
   description    String?
   startDate      DateTime?
   endDate        DateTime?
   status         ProjectStatus   @default(ONGOING)
-  reports        ReportProject[]
-  projectMembers ProjectMember[]
   createdAt      DateTime        @default(now())
   updatedAt      DateTime        @updatedAt
+  companyId      Int
+  company        Company         @relation(fields: [companyId], references: [id])
+  projectMembers ProjectMember[]
+  reports        ReportProject[]
 
   @@map("project")
 }
@@ -62,11 +62,11 @@ model ProjectMember {
   id         Int      @id @default(autoincrement())
   personId   Int
   projectId  Int
-  person     Person   @relation(fields: [personId], references: [id])
-  project    Project  @relation(fields: [projectId], references: [id])
   assignedAt DateTime @default(now())
   createdAt  DateTime @default(now())
   updatedAt  DateTime @updatedAt
+  person     Person   @relation(fields: [personId], references: [id])
+  project    Project  @relation(fields: [projectId], references: [id])
 
   @@unique([projectId, personId], name: "projectId_personId")
   @@map("project_member")
@@ -74,16 +74,16 @@ model ProjectMember {
 
 model ReportProject {
   id           Int            @id @default(autoincrement())
-  reportDate   DateTime?
-  emailStatus  EmailStatus    @default(PENDING)
   projectId    Int
-  isDraft      Boolean        @default(false)
-  project      Project        @relation(fields: [projectId], references: [id])
   personId     Int
-  person       Person         @relation(fields: [personId], references: [id])
   createdAt    DateTime       @default(now())
   updatedAt    DateTime       @updatedAt
+  reportDate   DateTime?
+  emailStatus  EmailStatus    @default(PENDING)
+  isDraft      Boolean        @default(false)
   ReportDetail ReportDetail[]
+  person       Person         @relation(fields: [personId], references: [id])
+  project      Project        @relation(fields: [projectId], references: [id])
 
   @@map("report_project")
 }
@@ -92,10 +92,10 @@ model ReportDetail {
   id              Int           @id @default(autoincrement())
   workedHour      Int
   description     String
-  reportProject   ReportProject @relation(fields: [reportProjectId], references: [id])
   reportProjectId Int
   createdAt       DateTime      @default(now())
   updatedAt       DateTime      @updatedAt
+  reportProject   ReportProject @relation(fields: [reportProjectId], references: [id])
 
   @@map("report_detail")
 }
@@ -114,6 +114,18 @@ model Company {
   projects  Project[]
 
   @@map("company")
+}
+
+model Media {
+  id        Int      @id @default(autoincrement())
+  refType   String
+  refId     Int?
+  alt       String?
+  filename  String
+  url       String
+  createdAt DateTime @default(now())
+
+  @@map("media")
 }
 
 enum PersonCategory {

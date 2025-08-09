@@ -13,6 +13,8 @@ const authController_1 = __importDefault(require("../controller/authController")
 const emailController_1 = __importDefault(require("../controller/emailController"));
 const projectMemberController_1 = __importDefault(require("../controller/projectMemberController"));
 const notificationController_1 = __importDefault(require("../controller/notificationController"));
+const upload_middleware_1 = require("../middleware/upload-middleware");
+const uploadController_1 = __importDefault(require("../controller/uploadController"));
 // import NotificationService from "../service/NotificationService";
 const router = express_1.default.Router();
 router.post('/login', authController_1.default.login);
@@ -22,6 +24,7 @@ router.get('/person-list', jwt_1.default.allowAdmin, personController_1.default.
 router.get('/person/:id', jwt_1.default.allowAdmin, personController_1.default.getById);
 router.post('/person/create', jwt_1.default.allowAdmin, personController_1.default.create);
 router.patch('/person/update/:id', jwt_1.default.allowAdmin, personController_1.default.update);
+router.post('/person/update-password', jwt_1.default.allowAll, personController_1.default.changePassword);
 router.get('/project', jwt_1.default.allowAdmin, projectController_1.default.get);
 router.get('/project/:id', jwt_1.default.allowAdmin, projectController_1.default.getByid);
 router.post('/project/create', jwt_1.default.allowAdmin, projectController_1.default.create);
@@ -47,5 +50,6 @@ router.post('/project-member/assign-unassign', jwt_1.default.allowAdmin, project
 router.post('/notification/send-to-admins', notificationController_1.default.sendNotificationToAdmins);
 router.patch('/notification/read/:notifId', notificationController_1.default.markAsRead);
 router.patch('/notification/read-all', notificationController_1.default.markAllAsRead);
+router.post('/upload', jwt_1.default.allowAll, upload_middleware_1.uploadMiddleware.single('file'), uploadController_1.default.uploadFile);
 exports.default = router;
 //# sourceMappingURL=routes.js.map

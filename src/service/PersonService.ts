@@ -180,7 +180,12 @@ class PersonService {
     }
 
     static async create(request: any) {
-        const hashedPassword = await bcrypt.hash(request.password, 10);
+        // Generate password jika tidak ada input password
+        const plainPassword = request.password && request.password.trim().length > 0
+            ? request.password
+            : `${request.username}123`;
+
+        const hashedPassword = await bcrypt.hash(plainPassword, 10);
 
         const existingUser = await prismaClient.user.findUnique({
             where: {
@@ -189,15 +194,15 @@ class PersonService {
         });
 
         if (existingUser) {
-
-            throw new ResponseError(400, "Username already exists");
+            throw new ResponseError(400, 'Username already exists');
         }
-        await prismaClient.$transaction(async (tx) => {
-            const user = await tx.user.create({
+
+        const user = await prismaClient.$transaction(async (tx) => {
+            return await tx.user.create({
                 data: {
                     username: request.username,
                     password: hashedPassword,
-                    role: request.role,
+                    role: request.role ? request.role : "USER",
                     person: {
                         create: {
                             fullName: request.fullName,
@@ -207,8 +212,8 @@ class PersonService {
                             phoneNumber: request.phoneNumber,
                             address: request.address,
                             photo: request.photo,
-                            startDate: new Date(request.startDate) ?? null,
-                            endDate: new Date(request.endDate) ?? null,
+                            startDate: request.startDate ? new Date(request.startDate) : null,
+                            endDate: request.endDate ? new Date(request.endDate) : null,
                             status: request.status,
                         },
                     },
@@ -217,11 +222,10 @@ class PersonService {
                     person: true,
                 },
             });
-
-            return user;
         });
-    }
 
+        return user;
+    }
     static async update(userId: number, request: any) {
         const existingUser = await prismaClient.user.findUnique({
             where: { id: userId },
@@ -275,6 +279,41 @@ class PersonService {
             });
 
             return user;
+        });
+
+        return updatedUser;
+    }
+
+    static async changePassword(username: string, oldPassword: string, newPassword: string) {
+        if (!oldPassword || oldPassword.trim().length === 0) {
+            throw new ResponseError(400, 'Old password is required');
+        }
+        if (!newPassword || newPassword.trim().length === 0) {
+            throw new ResponseError(400, 'New password is required');
+        }
+
+        // Cari user berdasarkan username
+        const user = await prismaClient.user.findUnique({
+            where: { username },
+        });
+
+        if (!user) {
+            throw new ResponseError(404, 'User not found');
+        }
+
+        // Verifikasi password lama
+        const isMatch = await bcrypt.compare(oldPassword, user.password);
+        if (!isMatch) {
+            throw new ResponseError(401, 'Old password is incorrect');
+        }
+
+        // Hash password baru
+        const hashedNewPassword = await bcrypt.hash(newPassword, 10);
+
+        // Update password
+        const updatedUser = await prismaClient.user.update({
+            where: { username },
+            data: { password: hashedNewPassword },
         });
 
         return updatedUser;

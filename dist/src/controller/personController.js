@@ -115,12 +115,26 @@ const update = (req, res, next) => __awaiter(void 0, void 0, void 0, function* (
         next(error);
     }
 });
+const changePassword = (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
+    try {
+        const { username, oldPassword, newPassword } = req.body;
+        const result = yield PersonService_1.default.changePassword(username, oldPassword, newPassword);
+        return res.status(200).json({
+            message: "success",
+            data: result
+        });
+    }
+    catch (error) {
+        next(error);
+    }
+});
 exports.default = {
     get,
     list,
     getById,
     create,
     update,
-    listNotInProject
+    listNotInProject,
+    changePassword
 };
 //# sourceMappingURL=personController.js.map

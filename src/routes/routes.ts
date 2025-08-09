@@ -9,6 +9,8 @@ import { emailQueue } from "../queue/emailQueue";
 import emailController from "../controller/emailController";
 import projectMemberController from "../controller/projectMemberController";
 import notificationController from "../controller/notificationController";
+import { uploadMiddleware } from "../middleware/upload-middleware";
+import uploadController from "../controller/uploadController";
 // import NotificationService from "../service/NotificationService";
 
 
@@ -23,6 +25,7 @@ router.get('/person-list', authorized.allowAdmin, personController.list);
 router.get('/person/:id', authorized.allowAdmin, personController.getById);
 router.post('/person/create', authorized.allowAdmin, personController.create);
 router.patch('/person/update/:id', authorized.allowAdmin, personController.update);
+router.post('/person/update-password', authorized.allowAll, personController.changePassword);
 
 router.get('/project', authorized.allowAdmin, projectController.get);
 router.get('/project/:id', authorized.allowAdmin, projectController.getByid);
@@ -55,5 +58,5 @@ router.post('/notification/send-to-admins', notificationController.sendNotificat
 router.patch('/notification/read/:notifId', notificationController.markAsRead);
 router.patch('/notification/read-all', notificationController.markAllAsRead);
 
-
+router.post('/upload', authorized.allowAll, uploadMiddleware.single('file'), uploadController.uploadFile)
 export default router;
